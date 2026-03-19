@@ -1,4 +1,4 @@
-import prisma from '../../infrastructure/database/prisma/prisma.js';
+import prisma from '../database/prisma.js';
 import User from '../entities/user.js';
 
 export default class UserRepository {
@@ -28,6 +28,13 @@ export default class UserRepository {
       },
     });
     return new User(userData);
+  }
+
+  async findById(videoId) {
+    const video = await prisma.video.findUnique({
+      where: { id: videoId },
+    });
+    return video;
   }
 
   async delete(clerkId) {

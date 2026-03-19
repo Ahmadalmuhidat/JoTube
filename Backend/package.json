@@ -18,7 +18,8 @@
     "@clerk/clerk-sdk-node": "^5.0.7",
     "svix": "^1.21.0",
     "@prisma/client": "^5.12.1",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "@google-cloud/storage": "^7.11.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.0",
