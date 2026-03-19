@@ -1,0 +1,181 @@
+"use client";
+
+import { useState } from "react";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Form } from "@/components/ui/form";
+import { VideoIcon } from "lucide-react";
+import { toast } from "sonner";
+import { useUploadModal } from "../../../hooks/use-upload-modal";
+import { useAuth } from "@clerk/nextjs";
+import axios from "axios";
+
+import { videoSchema, VideoFormValues } from "./types";
+import { UploadStep } from "./upload-step";
+import { DetailsStep } from "./details-step";
+import { SuccessStep } from "./success-step";
+
+export default function VideoUploadModal() {
+  const { isOpen, onClose } = useUploadModal();
+  const [step, setStep] = useState<"upload" | "details" | "success">("upload");
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const form = useForm<VideoFormValues>({
+    resolver: zodResolver(videoSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      videoUrl: "",
+      thumbnailUrl: "",
+      categoryIds: [],
+      isPublished: true,
+    },
+  });
+
+  const generateThumbnail = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement("video");
+      const canvas = document.createElement("canvas");
+      video.preload = "metadata";
+      video.src = URL.createObjectURL(file);
+      video.muted = true;
+      video.playsInline = true;
+
+      video.onloadedmetadata = () => {
+        video.currentTime = Math.min(1, video.duration / 2);
+      };
+
+      video.onseeked = () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL("image/jpeg");
+        URL.revokeObjectURL(video.src);
+        resolve(dataUrl);
+      };
+
+      video.onerror = (error) => {
+        URL.revokeObjectURL(video.src);
+        reject(error);
+      };
+    });
+  };
+
+  const onUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setStep("upload");
+
+    try {
+      const autoThumbnail = await generateThumbnail(file);
+      form.setValue("thumbnailUrl", autoThumbnail);
+    } catch (error) {
+      console.error("Thumbnail generation failed:", error);
+    }
+    
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.random() * 30;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        setTimeout(() => {
+          setIsUploading(false);
+          form.setValue("videoUrl", "https://example.com/video.mp4"); // Mock URL
+          form.setValue("title", file.name.replace(/\.[^/.]+$/, ""));
+          setStep("details");
+        }, 500);
+      }
+      setUploadProgress(progress);
+    }, 400);
+  };
+
+  const { getToken } = useAuth();
+
+  const onSubmit = async (values: VideoFormValues) => {
+    try {
+      const token = await getToken();
+      
+      const response = await axios.post("http://localhost:3000/api/videos", values, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log("Video created:", response.data);
+      setStep("success");
+      toast.success("Video uploaded and saved successfully!");
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      toast.error(error.response?.data?.message || "Failed to save video details");
+    }
+  };
+
+  const handleReset = () => {
+    setStep("upload");
+    form.reset();
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border-slate-200/50 dark:border-slate-800/50 rounded-[2rem] shadow-2xl">
+        <div className="flex flex-col h-full">
+          <DialogHeader className="p-6 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-900/50">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-red-600 rounded-xl shadow-lg shadow-red-500/20">
+                <VideoIcon className="size-5 text-white" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-extrabold tracking-tight">Upload Video</DialogTitle>
+                <DialogDescription className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                  {step === "upload" ? "Select a video file to share with your audience" : 
+                   step === "details" ? "Add some details to help people find your video" : 
+                   "Your video is ready to be published!"}
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+
+          <div className="p-8">
+            <FormProvider {...form}>
+              <Form {...form}>
+                {step === "upload" && (
+                  <UploadStep 
+                    onUpload={onUpload} 
+                    isUploading={isUploading} 
+                    uploadProgress={uploadProgress} 
+                  />
+                )}
+
+                {step === "details" && (
+                  <DetailsStep 
+                    onBack={() => setStep("upload")} 
+                    onSubmit={onSubmit} 
+                  />
+                )}
+
+                {step === "success" && (
+                  <SuccessStep 
+                    onClose={onClose} 
+                    onReset={handleReset} 
+                  />
+                )}
+              </Form>
+            </FormProvider>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

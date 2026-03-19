@@ -1,24 +1,26 @@
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import HomeNavbar from "@/app/(components)/navbar";
-import HomeSidebar from "@/app/(components)/sidebar";
-import Categories from "@/app/(components)/categories";
+"use client";
 
-export default function HomeLayout({
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import StudioNavbar from "../components/studio-navbar";
+import StudioSidebar from "../components/studio-sidebar";
+import VideoUploadModal from "../components/video-upload-modal";
+
+export function StudioLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
     <SidebarProvider>
-      <div className="w-full relative min-h-screen bg-slate-50 dark:bg-slate-950">
-        <HomeNavbar />
+      <div className="w-full relative min-h-screen bg-white dark:bg-slate-950">
+        <StudioNavbar />
         <div className="flex min-h-screen pt-24 relative z-10 w-full">
-          <HomeSidebar />
+          <StudioSidebar />
           <SidebarInset className="bg-transparent w-full">
-            <Categories />
             {children}
           </SidebarInset>
         </div>
+        <VideoUploadModal />
       </div>
     </SidebarProvider>
   );

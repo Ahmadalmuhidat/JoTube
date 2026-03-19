@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useApiClient } from "./use-api-client";
+import { useApiClient } from "@/hooks/use-api-client";
 
 export function useUsers() {
   const { fetchWithAuth } = useApiClient();
