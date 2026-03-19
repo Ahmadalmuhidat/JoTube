@@ -1,10 +1,10 @@
 "use client";
 
-import { UserCircleIcon, Sparkles } from "lucide-react";
+import { UserCircleIcon } from "lucide-react";
 import { UserButton, SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 
-export const AuthButton = () => {
+export default function AuthButton() {
   return (
     <>
       <SignedIn>

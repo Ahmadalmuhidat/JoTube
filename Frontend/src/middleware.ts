@@ -6,7 +6,7 @@ const isPublicRoute = createRouteMatcher([
   "/subscriptions",
   "/history",
   "/playlists",
-  "/your-videos",
+  "/studio",
   "/watch-later",
   "/liked-videos",
 ]);

@@ -52,8 +52,8 @@ const personalItems = [
     icon: ListVideoIcon
   },
   {
-    title: "Your videos",
-    url: "/your-videos",
+    title: "Studio",
+    url: "/studio",
     icon: UserIcon
   },
   {
@@ -68,7 +68,7 @@ const personalItems = [
   },
 ];
 
-export const HomeSidebar = () => {
+export default function HomeSidebar() {
   const clerk = useClerk();
   const { isSignedIn } = useAuth();
 

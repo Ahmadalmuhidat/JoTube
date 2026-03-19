@@ -1,15 +1,13 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { SearchIcon, VideoIcon, BellIcon, Sparkles } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import AuthButton from "@/app/(components)/auth-button";
 
-import { AuthButton } from "@/modules/auth/ui/components/auth-button";
-
-export const HomeNavbar = () => {
+export default function HomeNavbar() {
   return (
     <nav className="fixed top-4 left-4 right-4 h-16 bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 rounded-2xl flex items-center px-4 z-50 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] transition-all duration-500 group/nav overflow-hidden">
       <div className="absolute inset-0 bg-slate-900/5 dark:bg-white/5 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-500 pointer-events-none" />
