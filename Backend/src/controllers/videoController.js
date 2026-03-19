@@ -1,87 +1,94 @@
-import VideoRepository from '../repositories/videoRepository.js';
+import VideoService from '../services/videoService.js';
 import UserRepository from '../repositories/userRepository.js';
+import StorageStrategy from '../providers/storageStrategy.js';
+import GoogleStorage from '../providers/googleStorage.js';
 
 export default class VideoController {
-  constructor(storageStrategy) {
-    this.videoRepository = new VideoRepository();
+  constructor() {
+    // Initialize dependencies
+    const storageStrategy = new StorageStrategy();
+    storageStrategy.setStorage(new GoogleStorage());
+
+    // Initialize services
+    this.videoService = new VideoService(storageStrategy);
     this.userRepository = new UserRepository();
-    this.mediaStorage = storageStrategy;
   }
 
   async feed(req, res) {
-    try {
-      const videos = await this.videoRepository.feed(req.params.categoryId);
-      res.status(200).json(videos);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
+    const videos = await this.videoService.getFeed(req.params.categoryId);
+    res.status(200).json(videos);
+  }
+
+  async _getUser(req) {
+     const clerkId = req.auth?.userId;
+     if (!clerkId) return null;
+     return await this.userRepository.findByClerkId(clerkId);
   }
 
   async create(req, res) {
-    try {
-      const clerkId = req.auth?.userId;
-      if (!clerkId) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
+    const user = await this._getUser(req);
+    if (!user) return res.status(401).json({ message: "Unauthorized" });
 
-      const user = await this.userRepository.findByClerkId(clerkId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      let videoUrl = req.body.videoUrl;
-      let thumbnailUrl = req.body.thumbnailUrl;
-
-      if (req.files) {
-        if (req.files.video) {
-          videoUrl = await this.mediaStorage.upload(
-            req.files.video[0],
-            req.files.video[0].name,
-            'joutube/videos'
-          );
-        }
-        if (req.files.thumbnail) {
-          thumbnailUrl = await this.mediaStorage.upload(
-            req.files.thumbnail[0],
-            req.files.thumbnail[0].name,
-            'joutube/thumbnails'
-          );
-        }
-      }
-
-      const newVideo = await this.videoRepository.create({
-        ...req.body,
-        videoUrl,
-        thumbnailUrl,
-        authorId: user.id, // Use DB user ID
-      });
-
-      res.status(201).json(newVideo);
-    } catch (error) {
-      console.error("Controller error creating video:", error);
-      res.status(500).json({ error: error.message });
-    }
+    const newVideo = await this.videoService.createVideo(req.body, req.files, user.id);
+    res.status(201).json(newVideo);
   }
 
   async delete(req, res) {
-    try {
-      const video = await this.videoRepository.findById(req.params.id);
-      if (!video) {
-        return res.status(404).json({ error: 'Video not found' });
-      }
+    const result = await this.videoService.deleteVideo(req.params.id);
+    res.status(200).json({ message: 'Video deleted successfully' });
+  }
 
-      await this.mediaStorage.delete(
-        video.videoUrl.split('/').pop(),
-        'joutube/videos'
-      );
-      await this.mediaStorage.delete(
-        video.thumbnailUrl.split('/').pop(),
-        'joutube/thumbnails'
-      );
-      await this.videoRepository.delete(video.id);
-      res.status(200).json({ message: 'Video deleted successfully' });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
+  async view(req, res) {
+    const user = await this._getUser(req);
+    const videoId = req.body.videoId;
+    if (!videoId) return res.status(400).json({ error: 'videoId is required' });
+
+    await this.videoService.viewVideo(videoId, user?.id);
+    res.status(200).json({ message: 'Video viewed successfully' });
+  }
+
+  async like(req, res) {
+    const user = await this._getUser(req);
+    if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+    const videoId = req.body.videoId;
+    const result = await this.videoService.toggleLike(videoId, user.id);
+    res.status(200).json(result);
+  }
+
+  async dislike(req, res) {
+    const user = await this._getUser(req);
+    if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+    const videoId = req.body.videoId;
+    const result = await this.videoService.toggleDislike(videoId, user.id);
+    res.status(200).json(result);
+  }
+
+  async subscribe(req, res) {
+    const user = await this._getUser(req);
+    if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+    const videoId = req.body.videoId;
+    await this.videoService.subscribe(videoId, user.id);
+    res.status(200).json({ message: 'Subscribed successfully' });
+  }
+
+  async unsubscribe(req, res) {
+    const user = await this._getUser(req);
+    if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+    const videoId = req.body.videoId;
+    await this.videoService.unsubscribe(videoId, user.id);
+    res.status(200).json({ message: 'Unsubscribed successfully' });
+  }
+
+  async comment(req, res) {
+    const user = await this._getUser(req);
+    if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+    const { videoId, content } = req.body;
+    const comment = await this.videoService.addComment(videoId, user.id, content);
+    res.status(200).json({ message: 'Comment added successfully', comment });
   }
 }
