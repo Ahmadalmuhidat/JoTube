@@ -1,7 +1,9 @@
 import express from 'express';
+import 'express-async-errors';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import routes from './routes/routes.js';
+import { errorHandler } from './middlewares/errorMiddleware.js';
 
 dotenv.config();
 
@@ -18,10 +20,7 @@ app.get('/', (req, res) => {
   res.send('JoTube Backend API is running');
 });
 
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something went wrong!');
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

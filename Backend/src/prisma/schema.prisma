@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
 }
 
 datasource db {
@@ -18,24 +19,47 @@ model User {
   @@index([clerkId])
 }
 
+model Channel {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relationships
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Videos in channel
+  videos    Video[]
+
+  // Subscriptions
+  subscribers Subscription[]
+
+  @@index([userId])
+}
+
 model Video {
   id          String   @id @default(uuid())
   title       String
   description String?
   videoUrl    String
   thumbnailUrl String?
-  views       Int      @default(0)
+  viewCount   Int      @default(0)
+  likeCount   Int      @default(0)
+  dislikeCount Int      @default(0)
   duration    Int      @default(0)
   isPublished Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
   // Relationships
-  authorId    String
-  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  channelId    String
+  channel      Channel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
   
-  // Likes
-  likes       VideoLike[]
+  // Reactions
+  likes       Like[]
+  dislikes    Dislike[]
   
   // Comments
   comments    Comment[]
@@ -46,24 +70,14 @@ model Video {
   // Playlists
   playlistVideos PlaylistVideo[]
 
-  @@index([authorId])
+  // View logs
+  views       View[]
+
+  @@index([channelId])
   @@index([createdAt])
 }
 
-model VideoLike {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  
-  // Relationships
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  videoId   String
-  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, videoId])
-  @@index([videoId])
-}
+// Removed VideoLike in favor of Like model below
 
 model Comment {
   id        String   @id @default(uuid())
@@ -141,4 +155,64 @@ model VideoCategory {
 
   @@unique([videoId, categoryId])
   @@index([categoryId])
+}
+
+model View {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  
+  // Relationships
+  userId    String?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId])
+  @@index([videoId])
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  
+  // Relationships
+  userId    String?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId])
+  @@index([videoId])
+}
+
+model Dislike {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  
+  // Relationships
+  userId    String?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  videoId   String
+  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId])
+  @@index([videoId])
+}
+
+model Subscription {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  
+  // Relationships
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  channelId String
+  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, channelId])
+  @@index([channelId])
 }

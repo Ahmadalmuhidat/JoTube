@@ -7,16 +7,10 @@ export default class UserController {
   }
 
   async getUsers() {
-    try {
-      return await this.userRepository.getUsers();
-    } catch (error) {
-      console.error("Error getting users:", error);
-      return res.status(500).json({ error: "Internal server error" });
-    }
+    return await this.userRepository.getUsers();
   }
 
   async handleClerkWebhook(req, res) {
-    try {
       const WEBHOOK_SECRET = process.env.CLERK_SIGNING_SECRET;
       if (!WEBHOOK_SECRET) {
         return res.status(500).json({ error: 'Missing CLERK_SIGNING_SECRET' });
@@ -45,9 +39,5 @@ export default class UserController {
       });
 
       return true;
-    } catch (error) {
-      console.error("Error handling webhook:", error);
-      return res.status(500).json({ error: "Internal server error" });
-    }
   }
 }

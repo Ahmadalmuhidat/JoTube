@@ -30,11 +30,11 @@ export default class UserRepository {
     return new User(userData);
   }
 
-  async findById(videoId) {
-    const video = await prisma.video.findUnique({
-      where: { id: videoId },
+  async findById(id) {
+    const userData = await prisma.user.findUnique({
+      where: { id },
     });
-    return video;
+    return userData ? new User(userData) : null;
   }
 
   async delete(clerkId) {
