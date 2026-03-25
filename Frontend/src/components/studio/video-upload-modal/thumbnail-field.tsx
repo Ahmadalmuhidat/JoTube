@@ -15,12 +15,10 @@ export function ThumbnailField() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Simulate thumbnail upload
-    toast.info("Uploading thumbnail...");
-    setTimeout(() => {
-      setValue("thumbnailUrl", "https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=1000&auto=format&fit=crop"); // Mock image
-      toast.success("Thumbnail uploaded");
-    }, 1000);
+    const localUrl = URL.createObjectURL(file);
+    setValue("thumbnailUrl", localUrl);
+    setValue("thumbnailFile", file);
+    toast.success("Thumbnail uploaded");
   };
 
   return (

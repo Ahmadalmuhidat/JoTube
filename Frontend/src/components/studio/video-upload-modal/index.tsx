@@ -13,10 +13,9 @@ import {
 import { Form } from "@/components/ui/form";
 import { VideoIcon } from "lucide-react";
 import { toast } from "sonner";
-import { useUploadModal } from "../../../hooks/use-upload-modal";
+import { useUploadModal } from "@/modules/studio/hooks/use-upload-modal";
 import { useAuth } from "@clerk/nextjs";
-import axios from "axios";
-
+import axios from "@/config/axios";
 import { videoSchema, VideoFormValues } from "./types";
 import { UploadStep } from "./upload-step";
 import { DetailsStep } from "./details-step";
@@ -26,7 +25,10 @@ export default function VideoUploadModal() {
   const { isOpen, onClose } = useUploadModal();
   const [step, setStep] = useState<"upload" | "details" | "success">("upload");
   const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [thumbnailFile, setThumbnailFile] = useState<File | Blob | null>(null);
 
   const form = useForm<VideoFormValues>({
     resolver: zodResolver(videoSchema),
@@ -74,12 +76,17 @@ export default function VideoUploadModal() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setVideoFile(file);
     setIsUploading(true);
     setStep("upload");
 
     try {
       const autoThumbnail = await generateThumbnail(file);
       form.setValue("thumbnailUrl", autoThumbnail);
+      
+      const res = await fetch(autoThumbnail);
+      const blob = await res.blob();
+      setThumbnailFile(blob);
     } catch (error) {
       console.error("Thumbnail generation failed:", error);
     }
@@ -92,7 +99,6 @@ export default function VideoUploadModal() {
         clearInterval(interval);
         setTimeout(() => {
           setIsUploading(false);
-          form.setValue("videoUrl", "https://example.com/video.mp4"); // Mock URL
           form.setValue("title", file.name.replace(/\.[^/.]+$/, ""));
           setStep("details");
         }, 500);
@@ -104,21 +110,42 @@ export default function VideoUploadModal() {
   const { getToken } = useAuth();
 
   const onSubmit = async (values: VideoFormValues) => {
+    setIsSaving(true);
     try {
       const token = await getToken();
       
-      const response = await axios.post("http://localhost:3000/api/videos", values, {
+      if (!token) {
+        toast.error("You must be logged in to upload a video.");
+        return;
+      }
+      
+      const formData = new FormData();
+      formData.append("title", values.title);
+      if (values.description) formData.append("description", values.description);
+      formData.append("isPublished", String(values.isPublished));
+      values.categoryIds.forEach(id => formData.append("categoryIds", id));
+      
+      if (videoFile) formData.append("video", videoFile);
+      if (thumbnailFile) {
+        formData.append("thumbnail", thumbnailFile, "thumbnail.jpg");
+      }
+
+      const response = await axios.post('/videos', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data"
         },
       });
 
-      console.log("Video created:", response.data);
-      setStep("success");
-      toast.success("Video uploaded and saved successfully!");
+      if (response.status === 201) {
+        setStep("success");
+        toast.success("Video uploaded and saved successfully!");
+      }
     } catch (error: any) {
       console.error("Upload error:", error);
       toast.error(error.response?.data?.message || "Failed to save video details");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -162,6 +189,7 @@ export default function VideoUploadModal() {
                   <DetailsStep 
                     onBack={() => setStep("upload")} 
                     onSubmit={onSubmit} 
+                    isSaving={isSaving}
                   />
                 )}
 

@@ -1,25 +1,11 @@
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import HomeNavbar from "@/app/(components)/navbar";
-import HomeSidebar from "@/app/(components)/sidebar";
-import Categories from "@/app/(components)/categories";
+import HomeLayout from "@/modules/home/layouts/layout";
 
-export default function HomeLayout({
-  children,
-}: {
+interface LayoutProps {
   children: React.ReactNode;
-}) {
-  return (
-    <SidebarProvider>
-      <div className="w-full relative min-h-screen bg-slate-50 dark:bg-slate-950">
-        <HomeNavbar />
-        <div className="flex min-h-screen pt-24 relative z-10 w-full">
-          <HomeSidebar />
-          <SidebarInset className="bg-transparent w-full">
-            <Categories />
-            {children}
-          </SidebarInset>
-        </div>
-      </div>
-    </SidebarProvider>
-  );
 }
+
+const Layout = ({ children }: LayoutProps) => {
+  return <HomeLayout>{children}</HomeLayout>;
+};
+
+export default Layout;

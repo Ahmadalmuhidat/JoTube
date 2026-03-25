@@ -5,7 +5,7 @@ export const createVideoSchema = z.object({
   description: z.string().max(1000).optional(),
   videoUrl: z.string().url().optional(), // Optional if uploading
   thumbnailUrl: z.string().url().optional(),
-  channelId: z.string().uuid()
+  channelId: z.string().uuid().optional()
 });
 
 export const videoIdSchema = z.object({

@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearchPostgres"]
+  previewFeatures = ["fullTextSearch"]
 }
 
 datasource db {
@@ -16,6 +16,14 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  channels      Channel[]
+  comments      Comment[]
+  playlists     Playlist[]
+  views         View[]
+  likes         Like[]
+  dislikes      Dislike[]
+  subscriptions Subscription[]
+
   @@index([clerkId])
 }
 
@@ -25,13 +33,13 @@ model Channel {
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   // Relationships
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // Videos in channel
-  videos    Video[]
+  videos Video[]
 
   // Subscriptions
   subscribers Subscription[]
@@ -40,38 +48,38 @@ model Channel {
 }
 
 model Video {
-  id          String   @id @default(uuid())
-  title       String
-  description String?
-  videoUrl    String
+  id           String   @id @default(uuid())
+  title        String
+  description  String?
+  videoUrl     String
   thumbnailUrl String?
-  viewCount   Int      @default(0)
-  likeCount   Int      @default(0)
+  viewCount    Int      @default(0)
+  likeCount    Int      @default(0)
   dislikeCount Int      @default(0)
-  duration    Int      @default(0)
-  isPublished Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  duration     Int      @default(0)
+  isPublished  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
   // Relationships
-  channelId    String
-  channel      Channel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
-  
+  channelId String
+  channel   Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
   // Reactions
-  likes       Like[]
-  dislikes    Dislike[]
-  
+  likes    Like[]
+  dislikes Dislike[]
+
   // Comments
-  comments    Comment[]
+  comments Comment[]
 
   // Categories
-  categories  VideoCategory[]
-  
+  categories VideoCategory[]
+
   // Playlists
   playlistVideos PlaylistVideo[]
 
   // View logs
-  views       View[]
+  views View[]
 
   @@index([channelId])
   @@index([createdAt])
@@ -84,13 +92,13 @@ model Comment {
   content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   // Relationships
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  videoId   String
-  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  videoId String
+  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
 
   @@index([videoId])
   @@index([createdAt])
@@ -103,13 +111,13 @@ model Playlist {
   isPublic    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   // Relationships
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // Videos in playlist
-  videos    PlaylistVideo[]
+  videos PlaylistVideo[]
 
   @@index([userId])
 }
@@ -117,13 +125,13 @@ model Playlist {
 model PlaylistVideo {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
-  
+
   // Relationships
   playlistId String
   playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
-  
-  videoId   String
-  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  videoId String
+  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
 
   @@unique([playlistId, videoId])
   @@index([videoId])
@@ -135,9 +143,9 @@ model Category {
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   // Relationships
-  videos      VideoCategory[]
+  videos VideoCategory[]
 
   @@index([name])
 }
@@ -145,11 +153,11 @@ model Category {
 model VideoCategory {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
-  
+
   // Relationships
-  videoId   String
-  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
-  
+  videoId String
+  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
@@ -160,13 +168,13 @@ model VideoCategory {
 model View {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
-  
+
   // Relationships
-  userId    String?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  videoId   String
-  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  videoId String
+  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
 
   @@unique([userId, videoId])
   @@index([videoId])
@@ -175,13 +183,13 @@ model View {
 model Like {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
-  
+
   // Relationships
-  userId    String?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  videoId   String
-  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  videoId String
+  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
 
   @@unique([userId, videoId])
   @@index([videoId])
@@ -190,13 +198,13 @@ model Like {
 model Dislike {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
-  
+
   // Relationships
-  userId    String?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  videoId   String
-  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  videoId String
+  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
 
   @@unique([userId, videoId])
   @@index([videoId])
@@ -205,13 +213,13 @@ model Dislike {
 model Subscription {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
-  
+
   // Relationships
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   channelId String
-  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channel   Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
 
   @@unique([userId, channelId])
   @@index([channelId])
