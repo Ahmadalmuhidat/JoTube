@@ -1,9 +1,9 @@
 "use client";
 
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import StudioNavbar from "../components/studio-navbar";
-import StudioSidebar from "../components/studio-sidebar";
-import VideoUploadModal from "../components/video-upload-modal";
+import StudioNavbar from "@/components/studio/studio-navbar";
+import StudioSidebar from "@/components/studio/studio-sidebar";
+import VideoUploadModal from "@/components/studio/video-upload-modal";
 
 export function StudioLayout({
   children,

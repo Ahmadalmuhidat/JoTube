@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { UploadIcon, VideoIcon, Sparkles } from "lucide-react";
-import AuthButton from "@/app/(components)/auth-button";
-import { useUploadModal } from "@/hooks/use-upload-modal";
+import { UploadIcon, VideoIcon } from "lucide-react";
+import AuthButton from "@/components/home/auth-button";
+import { useUploadModal } from "@/modules/studio/hooks/use-upload-modal";
 
 export default function StudioNavbar() {
   const { onOpen } = useUploadModal();

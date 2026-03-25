@@ -2,15 +2,21 @@ import prisma from '../database/prisma.js';
 import Video from '../entities/video.js';
 
 export default class VideoRepository {
-  async feed(categoryId) {
+  async search(query) {
     const videosData = await prisma.video.findMany({
-      where: categoryId ? {
-        categories: {
-          some: { categoryId }
-        }
+      where: query ? {
+        OR: [
+          { title: { contains: query } },
+          { description: { contains: query } },
+          { channel: { name: { contains: query } } }
+        ]
       } : {},
       include: {
-        channel: true
+        channel: {
+          include: {
+            user: true
+          }
+        }
       }
     });
     return videosData.map(videoData => new Video(videoData));
@@ -27,10 +33,10 @@ export default class VideoRepository {
         likeCount: 0,
         dislikeCount: 0,
         duration: body.duration || 0,
-        isPublished: body.isPublished ?? false,
+        isPublished: body.isPublished === 'true' || body.isPublished === true,
         channelId: body.channelId,
         categories: {
-          create: body.categoryIds?.map(categoryId => ({
+          create: (Array.isArray(body.categoryIds) ? body.categoryIds : (body.categoryIds ? [body.categoryIds] : [])).map(categoryId => ({
             category: {
               connect: { id: categoryId }
             }
@@ -60,7 +66,19 @@ export default class VideoRepository {
         id: id,
       },
       include: {
-        channel: true
+        channel: {
+          include: {
+            user: true
+          }
+        },
+        comments: {
+          include: {
+            user: true
+          },
+          orderBy: {
+            createdAt: 'desc'
+          }
+        }
       }
     });
     if (!videoData) return null;
@@ -69,14 +87,22 @@ export default class VideoRepository {
 
   async view(videoId, userId) {
     await prisma.$transaction(async (tx) => {
-      const view = await tx.view.findUnique({
-        where: { userId_videoId: { userId, videoId } }
-      });
-
-      if (!view) {
-        await tx.view.create({
-          data: { videoId, userId }
+      if (userId) {
+        const view = await tx.view.findUnique({
+          where: { userId_videoId: { userId, videoId } }
         });
+
+        if (!view) {
+          await tx.view.create({
+            data: { videoId, userId }
+          });
+          await tx.video.update({
+            where: { id: videoId },
+            data: { viewCount: { increment: 1 } }
+          });
+        }
+      } else {
+        // Anonymous view - just increment the count
         await tx.video.update({
           where: { id: videoId },
           data: { viewCount: { increment: 1 } }

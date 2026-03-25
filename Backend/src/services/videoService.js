@@ -6,11 +6,15 @@ export default class VideoService {
     this.storageStrategy = storageStrategy;
   }
 
-  async getFeed(categoryId) {
-    return await this.videoRepository.feed(categoryId);
+  async search(query) {
+    return await this.videoRepository.search(query);
   }
 
-  async createVideo(data, files, authorId) {
+  async getVideoById(id) {
+    return await this.videoRepository.findById(id);
+  }
+
+  async createVideo(data, files) {
     let videoUrl = data.videoUrl;
     let thumbnailUrl = data.thumbnailUrl;
 
@@ -18,15 +22,15 @@ export default class VideoService {
       if (files.video) {
         videoUrl = await this.storageStrategy.upload(
           files.video[0],
-          files.video[0].name,
-          'joutube/videos'
+          files.video[0].originalname,
+          'jotube/videos'
         );
       }
       if (files.thumbnail) {
         thumbnailUrl = await this.storageStrategy.upload(
           files.thumbnail[0],
-          files.thumbnail[0].name,
-          'joutube/thumbnails'
+          files.thumbnail[0].originalname,
+          'jotube/thumbnails'
         );
       }
     }
@@ -44,10 +48,12 @@ export default class VideoService {
     if (!video) throw new Error('Video not found');
 
     if (video.videoUrl) {
-      await this.storageStrategy.delete(video.videoUrl.split('/').pop(), 'joutube/videos');
+      const fileName = video.videoUrl.split('/').pop();
+      await this.storageStrategy.delete(fileName, 'jotube/videos');
     }
     if (video.thumbnailUrl) {
-      await this.storageStrategy.delete(video.thumbnailUrl.split('/').pop(), 'joutube/thumbnails');
+      const fileName = video.thumbnailUrl.split('/').pop();
+      await this.storageStrategy.delete(fileName, 'jotube/thumbnails');
     }
 
     return await this.videoRepository.delete(id);
@@ -64,7 +70,7 @@ export default class VideoService {
   async toggleDislike(videoId, userId) {
     return await this.videoRepository.toggleDislike(videoId, userId);
   }
-  
+
   async addComment(videoId, userId, content) {
     return await this.videoRepository.comment(videoId, userId, content);
   }

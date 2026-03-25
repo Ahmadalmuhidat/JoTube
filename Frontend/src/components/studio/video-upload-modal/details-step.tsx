@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { GlobeIcon, LockIcon, ChevronRightIcon } from "lucide-react";
+import { GlobeIcon, LockIcon, ChevronRightIcon, Loader2 } from "lucide-react";
 import { VideoFormValues } from "./types";
 import { ThumbnailField } from "./thumbnail-field";
 import { CategoryField } from "./category-field";
@@ -21,9 +21,10 @@ import { CategoryField } from "./category-field";
 interface DetailsStepProps {
   onBack: () => void;
   onSubmit: (values: VideoFormValues) => void;
+  isSaving?: boolean;
 }
 
-export function DetailsStep({ onBack, onSubmit }: DetailsStepProps) {
+export function DetailsStep({ onBack, onSubmit, isSaving }: DetailsStepProps) {
   const { control, handleSubmit } = useFormContext<VideoFormValues>();
 
   return (
@@ -113,15 +114,26 @@ export function DetailsStep({ onBack, onSubmit }: DetailsStepProps) {
             variant="ghost" 
             className="rounded-xl font-bold h-11 px-6 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
             onClick={onBack}
+            disabled={isSaving}
           >
             Back
           </Button>
           <Button 
             type="submit" 
+            disabled={isSaving}
             className="rounded-xl font-extrabold bg-red-600 hover:bg-red-700 text-white shadow-xl shadow-red-600/20 h-11 px-8 group transition-all"
           >
-            Save & Continue
-            <ChevronRightIcon className="size-4 ml-2 group-hover:translate-x-1 transition-transform" />
+            {isSaving ? (
+              <>
+                <Loader2 className="size-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                Save & Continue
+                <ChevronRightIcon className="size-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </>
+            )}
           </Button>
         </div>
       </div>

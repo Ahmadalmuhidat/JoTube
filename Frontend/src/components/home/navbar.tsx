@@ -5,7 +5,7 @@ import { SearchIcon, VideoIcon, BellIcon, Sparkles } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import AuthButton from "@/app/(components)/auth-button";
+import AuthButton from "@/components/home/auth-button";
 
 export default function HomeNavbar() {
   return (

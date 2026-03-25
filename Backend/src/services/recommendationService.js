@@ -8,4 +8,8 @@ export default class RecommendationService {
   async getRecommendations(userId) {
     return await this.recommendationRepository.getRecommendations(userId);
   }
+
+  async suggestions(id) {
+    return await this.recommendationRepository.suggestions(id);
+  }
 }

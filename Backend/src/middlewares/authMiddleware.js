@@ -27,3 +27,29 @@ export const requireAuth = async (req, res, next) => {
     res.status(401).json({ error: 'Unauthorized: Authentication failed' });
   }
 };
+
+export const optionalAuth = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return next();
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token || token === 'null' || token === 'undefined') {
+      return next();
+    }
+
+    const { sub: userId } = await clerkClient.verifyToken(token);
+    
+    if (userId) {
+      req.auth = { userId };
+    }
+    
+    next();
+  } catch (error) {
+    // If token verification fails, we still allow the request but without a user
+    console.warn('Optional Auth Token Verification Failed:', error);
+    next();
+  }
+};

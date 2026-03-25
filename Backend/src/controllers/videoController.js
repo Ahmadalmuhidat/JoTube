@@ -2,6 +2,8 @@ import VideoService from '../services/videoService.js';
 import UserRepository from '../repositories/userRepository.js';
 import StorageStrategy from '../providers/storageStrategy.js';
 import GoogleStorage from '../providers/googleStorage.js';
+import ChannelService from '../services/channelService.js';
+import RecommendationService from '../services/recommendationService.js';
 
 export default class VideoController {
   constructor() {
@@ -11,25 +13,49 @@ export default class VideoController {
 
     // Initialize services
     this.videoService = new VideoService(storageStrategy);
+    this.channelService = new ChannelService();
     this.userRepository = new UserRepository();
+    this.recommendationService = new RecommendationService();
   }
 
   async feed(req, res) {
-    const videos = await this.videoService.getFeed(req.params.categoryId);
+    const user = await this._getUser(req);
+    const videos = await this.recommendationService.getRecommendations(user?.id);
+    res.status(200).json({ videos });
+  }
+
+  async search(req, res) {
+    const videos = await this.videoService.search(req.params.query);
     res.status(200).json(videos);
   }
 
+  async suggestions(req, res) {
+    const videos = await this.recommendationService.suggestions(req.params.id);
+    res.status(200).json(videos);
+  }
+
+  async getById(req, res) {
+    const video = await this.videoService.getVideoById(req.params.id);
+    if (!video) return res.status(404).json({ message: "Video not found" });
+    res.status(200).json(video);
+  }
+
   async _getUser(req) {
-     const clerkId = req.auth?.userId;
-     if (!clerkId) return null;
-     return await this.userRepository.findByClerkId(clerkId);
+    const clerkId = req.auth?.userId;
+    if (!clerkId) return null;
+    return await this.userRepository.findByClerkId(clerkId);
   }
 
   async create(req, res) {
     const user = await this._getUser(req);
     if (!user) return res.status(401).json({ message: "Unauthorized" });
 
-    const newVideo = await this.videoService.createVideo(req.body, req.files, user.id);
+    const channel = await this.channelService.getByUserId(user.id);
+    if (!channel) return res.status(400).json({ message: "You must create a channel to upload videos." });
+
+    req.body.channelId = channel.id;
+
+    const newVideo = await this.videoService.createVideo(req.body, req.files);
     res.status(201).json(newVideo);
   }
 

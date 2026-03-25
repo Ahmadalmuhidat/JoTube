@@ -26,7 +26,11 @@ class RecommendationRepository {
           take: 10,
           orderBy: { createdAt: 'desc' },
           include: {
-            channel: true
+            channel: {
+              include: {
+                user: true
+              }
+            }
           }
         });
       }
@@ -62,7 +66,11 @@ class RecommendationRepository {
           },
           take: 10,
           include: {
-            channel: true
+            channel: {
+              include: {
+                user: true
+              }
+            }
           }
         });
       }
@@ -77,7 +85,11 @@ class RecommendationRepository {
         }
       },
       include: {
-        channel: true
+        channel: {
+          include: {
+            user: true
+          }
+        }
       }
     });
 
@@ -86,7 +98,11 @@ class RecommendationRepository {
       take: 10,
       orderBy: { createdAt: 'desc' },
       include: {
-        channel: true
+        channel: {
+          include: {
+            user: true
+          }
+        }
       }
     });
 
@@ -95,6 +111,36 @@ class RecommendationRepository {
     const uniqueVideos = Array.from(new Map(allVideos.map(v => [v.id, v])).values());
 
     return uniqueVideos;
+  }
+
+  async suggestions(id) {
+    // Basic recommendation: get videos from the same channel or just recent videos
+    const currentVideo = await prisma.video.findUnique({
+      where: { id },
+      select: { channelId: true }
+    });
+
+    const suggestions = await prisma.video.findMany({
+      where: {
+        id: { not: id },
+        // Try to prioritize same channel if possible, otherwise just other videos
+        OR: [
+          { channelId: currentVideo?.channelId },
+          { isPublished: true }
+        ]
+      },
+      take: 20,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        channel: {
+          include: {
+            user: true
+          }
+        }
+      }
+    });
+
+    return suggestions;
   }
 }
 
