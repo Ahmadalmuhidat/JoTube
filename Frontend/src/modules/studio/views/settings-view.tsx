@@ -113,33 +113,64 @@ export default function SettingsView() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 md:p-10">
-      <div className="flex flex-col gap-8">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Channel customization</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium">Manage your channel identity and description</p>
+    <div className="w-full px-6 py-10 md:px-12 lg:px-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col gap-12">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-200/60 dark:border-slate-800/60 pb-10">
+          <div className="space-y-1">
+            <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">Channel customization</h1>
+            <p className="text-slate-500 dark:text-slate-400 font-medium text-lg italic">Refine your identity on JoTube</p>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="rounded-2xl h-12 px-8 font-bold text-slate-600 border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-900 transition-all"
+              onClick={() => router.push("/studio")}
+            >
+              Discard
+            </Button>
+            <Button 
+                onClick={form.handleSubmit(onSubmit)}
+                disabled={isSaving}
+                className="rounded-2xl h-12 px-10 bg-red-600 hover:bg-red-700 text-white font-bold shadow-2xl shadow-red-600/30 transition-all active:scale-95 disabled:opacity-70 flex items-center gap-2"
+            >
+                {isSaving ? (
+                <Loader2Icon className="size-5 animate-spin" />
+                ) : (
+                <>
+                    <SaveIcon className="size-5" />
+                    Publish
+                </>
+                )}
+            </Button>
+          </div>
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200/60 dark:border-slate-800/60 p-8 shadow-sm">
-              <div className="flex flex-col md:flex-row gap-10">
-                {/* Avatar Section */}
-                <div className="flex flex-col items-center gap-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
+            <div className="bg-white dark:bg-black/20 rounded-[4rem] border border-slate-200/50 dark:border-slate-800/50 p-12 md:p-20 shadow-2xl shadow-slate-200/10 dark:shadow-none backdrop-blur-3xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-600/5 blur-[120px] rounded-full -mr-64 -mt-64" />
+              
+              <div className="flex flex-col lg:flex-row gap-20 lg:gap-32 relative z-10">
+                {/* Branding Left Column */}
+                <div className="flex flex-col items-center lg:items-start gap-12 lg:w-[280px] flex-shrink-0">
                   <div className="relative group">
-                    <Avatar className="size-40 md:size-48 ring-8 ring-slate-100 dark:ring-slate-800/50 shadow-2xl">
+                    <div className="absolute -inset-6 bg-gradient-to-tr from-red-600/20 to-transparent rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                    <Avatar className="size-40 md:size-44 ring-[16px] ring-slate-50 dark:ring-slate-900/50 shadow-2xl relative z-10 transition-all duration-700 border-4 border-white dark:border-slate-800">
                       <AvatarImage src={previewImage || ""} className="object-cover" />
-                      <AvatarFallback className="text-4xl font-black bg-slate-100 dark:bg-slate-800">
+                      <AvatarFallback className="text-5xl font-black bg-slate-100 dark:bg-slate-800">
                         {form.getValues("name")?.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     
                     <label 
                       htmlFor="image-upload"
-                      className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-all rounded-full cursor-pointer backdrop-blur-sm border-4 border-white/20"
+                      className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-all rounded-full cursor-pointer backdrop-blur-md border-[10px] border-white/10"
                     >
-                      <CameraIcon className="size-8 text-white mb-2" />
-                      <span className="text-white text-[10px] font-black uppercase tracking-widest">Change Photo</span>
+                      <CameraIcon className="size-10 text-white mb-2" />
+                      <span className="text-white text-[12px] font-black uppercase tracking-[0.3em]">Replace</span>
                     </label>
                     
                     <input 
@@ -150,31 +181,40 @@ export default function SettingsView() {
                       onChange={onImageChange}
                     />
                   </div>
-                  <div className="text-center">
-                    <h3 className="font-bold text-slate-900 dark:text-white">Channel Picture</h3>
-                    <p className="text-[11px] text-slate-400 font-bold uppercase tracking-tight mt-1">JPG, PNG or GIF. Max 2MB.</p>
+                  
+                  <div className="space-y-4 text-center lg:text-left">
+                    <div className="space-y-1">
+                        <h3 className="text-xl font-black text-slate-900 dark:text-white">Avatar</h3>
+                        <p className="text-sm text-slate-500 font-medium leading-relaxed">This is your calling card across the JoTube universe.</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
+                        <span className="text-[10px] font-black uppercase tracking-widest bg-slate-100 dark:bg-slate-800/80 p-2 px-4 rounded-xl border border-slate-200/50 dark:border-slate-700/50">2MB MAX</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest bg-slate-100 dark:bg-slate-800/80 p-2 px-4 rounded-xl border border-slate-200/50 dark:border-slate-700/50">SQUARE</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Info Section */}
-                <div className="flex-1 space-y-6">
+                {/* Info Right Column - Takes remaining width */}
+                <div className="flex-1 space-y-12 max-w-[900px]">
                   <FormField
                     control={form.control}
                     name="name"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-extrabold text-slate-700 dark:text-slate-300">Channel Name</FormLabel>
+                      <FormItem className="space-y-4">
+                        <div className="space-y-2">
+                            <FormLabel className="text-2xl font-black text-slate-900 dark:text-white">Display Name</FormLabel>
+                            <FormDescription className="text-base font-medium text-slate-500 dark:text-slate-400">
+                                This is how you'll be known on JoTube. You can change this at any time.
+                            </FormDescription>
+                        </div>
                         <FormControl>
                           <Input 
                             {...field} 
-                            placeholder="Your channel name" 
-                            className="rounded-2xl h-12 bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus:ring-red-600/20 focus:border-red-600 font-semibold"
+                            placeholder="What's your persona?" 
+                            className="rounded-[1.5rem] h-16 bg-slate-50 dark:bg-slate-950/30 border-2 border-slate-200/60 dark:border-slate-800/60 focus:ring-8 focus:ring-red-600/5 focus:border-red-600 font-extrabold text-xl px-8 transition-all shadow-sm"
                           />
                         </FormControl>
-                        <FormDescription className="text-[11px] font-bold text-slate-400">
-                          Choose a name that represents you and your content.
-                        </FormDescription>
-                        <FormMessage />
+                        <FormMessage className="font-bold text-red-600" />
                       </FormItem>
                     )}
                   />
@@ -183,49 +223,26 @@ export default function SettingsView() {
                     control={form.control}
                     name="description"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm font-extrabold text-slate-700 dark:text-slate-300">Description</FormLabel>
+                      <FormItem className="space-y-4">
+                        <div className="space-y-2">
+                            <FormLabel className="text-2xl font-black text-slate-900 dark:text-white">Bio</FormLabel>
+                            <FormDescription className="text-base font-medium text-slate-500 dark:text-slate-400">
+                                Tell your story. High-performing channels often have clear, engaging descriptions.
+                            </FormDescription>
+                        </div>
                         <FormControl>
                           <Textarea 
                             {...field} 
-                            placeholder="Tell viewers about your channel..." 
-                            className="rounded-2xl min-h-[150px] bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus:ring-red-600/20 focus:border-red-600 font-medium resize-none"
+                            placeholder="Share your vision with the world..." 
+                            className="rounded-[2rem] min-h-[300px] bg-slate-50 dark:bg-slate-950/30 border-2 border-slate-200/60 dark:border-slate-800/60 focus:ring-8 focus:ring-red-600/5 focus:border-red-600 font-medium text-lg p-8 resize-none transition-all leading-loose shadow-sm"
                           />
                         </FormControl>
-                        <FormDescription className="text-[11px] font-bold text-slate-400">
-                          Your description will appear in the About section of your channel.
-                        </FormDescription>
-                        <FormMessage />
+                        <FormMessage className="font-bold text-red-600" />
                       </FormItem>
                     )}
                   />
                 </div>
               </div>
-            </div>
-
-            <div className="flex justify-end gap-3 pt-2">
-              <Button 
-                type="button" 
-                variant="ghost" 
-                className="rounded-2xl h-12 px-8 font-bold text-slate-500 hover:text-slate-900 transition-colors"
-                onClick={() => router.push("/studio")}
-              >
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
-                disabled={isSaving}
-                className="rounded-2xl h-12 px-10 bg-red-600 hover:bg-red-700 text-white font-bold shadow-lg shadow-red-600/20 transition-all active:scale-95 disabled:opacity-70"
-              >
-                {isSaving ? (
-                  <Loader2Icon className="size-5 animate-spin" />
-                ) : (
-                  <>
-                    <SaveIcon className="size-5 mr-2" />
-                    Publish Changes
-                  </>
-                )}
-              </Button>
             </div>
           </form>
         </Form>
