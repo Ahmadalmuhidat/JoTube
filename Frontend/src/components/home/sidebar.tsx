@@ -1,5 +1,7 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 import {
   HomeIcon,
   PlaySquareIcon,
@@ -69,6 +71,7 @@ const personalItems = [
 ];
 
 export default function HomeSidebar() {
+  const pathname = usePathname();
   const clerk = useClerk();
   const { isSignedIn } = useAuth();
 
@@ -83,12 +86,19 @@ export default function HomeSidebar() {
                   <SidebarMenuButton
                     tooltip={item.title}
                     asChild
-                    isActive={false} // TODO: Add active state logic
-                    onClick={() => { }} // TODO: Add navigation logic
-                    className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 rounded-xl mx-2 my-0.5 group"
+                    isActive={pathname === item.url}
+                    className={cn(
+                      "transition-all duration-300 rounded-xl mx-2 my-0.5 group",
+                      pathname === item.url 
+                        ? "bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-500 shadow-sm" 
+                        : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200"
+                    )}
                   >
-                    <a href={item.url} className="flex items-center gap-4 text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white">
-                      <item.icon className="transition-transform duration-300 group-hover:scale-110" />
+                    <a href={item.url} className="flex items-center gap-4">
+                      <item.icon className={cn(
+                        "transition-transform duration-300 group-hover:scale-110",
+                        pathname === item.url ? "text-red-600 dark:text-red-500" : ""
+                      )} />
                       <span className="text-sm font-semibold">{item.title}</span>
                     </a>
                   </SidebarMenuButton>
@@ -110,20 +120,25 @@ export default function HomeSidebar() {
                   <SidebarMenuButton
                     tooltip={item.title}
                     asChild
-                    isActive={false} // TODO: Add active state logic
-                    className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 rounded-xl mx-2 my-0.5 group"
+                    isActive={pathname === item.url}
+                    className={cn(
+                      "transition-all duration-300 rounded-xl mx-2 my-0.5 group",
+                      pathname === item.url 
+                        ? "bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-500 shadow-sm" 
+                        : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200"
+                    )}
                     onClick={(e) => {
-                      e.preventDefault();
-
                       if (!isSignedIn) {
+                        e.preventDefault();
                         clerk.openSignIn();
-                      } else {
-                        clerk.navigate(item.url);
                       }
-                    }} // TODO: Add navigation logic
+                    }}
                   >
-                    <a href={item.url} className="flex items-center gap-4 text-slate-700 dark:text-slate-200 group-hover:text-slate-900 dark:group-hover:text-white">
-                      <item.icon className="transition-transform duration-300 group-hover:scale-110" />
+                    <a href={item.url} className="flex items-center gap-4">
+                      <item.icon className={cn(
+                        "transition-transform duration-300 group-hover:scale-110",
+                        pathname === item.url ? "text-red-600 dark:text-red-500" : ""
+                      )} />
                       <span className="text-sm font-semibold">{item.title}</span>
                     </a>
                   </SidebarMenuButton>

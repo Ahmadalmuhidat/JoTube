@@ -17,8 +17,8 @@ export default function HomeNavbar() {
         <div className="flex items-center flex-shrink-0">
           <SidebarTrigger className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors rounded-xl" />
           <Link href="/" className="flex items-center gap-2 ml-4 group">
-            <div className="relative p-1.5 bg-slate-900 dark:bg-white rounded-xl shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105">
-              <Sparkles className="size-5 text-white dark:text-slate-900" />
+            <div className="relative p-1.5 bg-red-600 rounded-xl shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:scale-105">
+              <VideoIcon className="size-5 text-white" />
             </div>
             <span className="text-xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300">
               JoTube

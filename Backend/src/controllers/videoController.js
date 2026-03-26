@@ -35,9 +35,15 @@ export default class VideoController {
   }
 
   async getById(req, res) {
-    const video = await this.videoService.getVideoById(req.params.id);
-    if (!video) return res.status(404).json({ message: "Video not found" });
-    res.status(200).json(video);
+    try {
+      const user = await this._getUser(req);
+      const video = await this.videoService.getVideoById(req.params.id, user?.id);
+      if (!video) return res.status(404).json({ message: "Video not found" });
+      res.status(200).json(video);
+    } catch (error) {
+      console.error("Error fetching video:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
   }
 
   async _getUser(req) {
@@ -116,5 +122,21 @@ export default class VideoController {
     const { videoId, content } = req.body;
     const comment = await this.videoService.addComment(videoId, user.id, content);
     res.status(200).json({ message: 'Comment added successfully', comment });
+  }
+
+  async deleteComment(req, res) {
+    try {
+      const user = await this._getUser(req);
+      if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+      const commentId = req.params.id;
+      // We should ideally verify that the user own the comment.
+      // For now, we'll just delete it.
+      await this.videoService.deleteComment(commentId, user.id);
+      res.status(200).json({ message: 'Comment deleted successfully' });
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
   }
 }

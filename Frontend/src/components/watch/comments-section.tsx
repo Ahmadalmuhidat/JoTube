@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth, useUser } from "@clerk/nextjs";
 import axios from "@/config/axios";
 import { formatDistanceToNow } from "date-fns";
-import { MessageSquare, ThumbsUp, ThumbsDown, User2, Send } from "lucide-react";
+import { MessageSquare, ThumbsUp, ThumbsDown, User2, Send, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,8 @@ interface CommentsSectionProps {
 }
 
 export const CommentsSection = ({ videoId, videoComments = [] }: CommentsSectionProps) => {
+  const { getToken, isSignedIn } = useAuth();
+  const { user } = useUser();
   const [comments, setComments] = useState<any[]>(videoComments);
   const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,17 +30,21 @@ export const CommentsSection = ({ videoId, videoComments = [] }: CommentsSection
   const handleSubmit = async () => {
     if (!newComment.trim()) return;
 
+    if (!isSignedIn) {
+      toast.error("Please sign in to add a comment");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
+      const token = await getToken();
       const response = await axios.post("/videos/comment", {
         videoId,
         content: newComment
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       });
 
-      // Optimistically add the comment or handle response
-      // Since the backend might return the comment without the user object, 
-      // we might need to fetch again or structure the new comment.
-      // For now, let's just refresh or add a placeholder
       setComments([response.data.comment, ...comments]);
       setNewComment("");
       toast.success("Comment added!");
@@ -46,6 +53,20 @@ export const CommentsSection = ({ videoId, videoComments = [] }: CommentsSection
       toast.error("Failed to add comment. Please try again.");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (commentId: string) => {
+    try {
+      const token = await getToken();
+      await axios.delete(`/videos/comment/${commentId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setComments(comments.filter(c => c.id !== commentId));
+      toast.success("Comment deleted");
+    } catch (error) {
+      console.error("Failed to delete comment:", error);
+      toast.error("Failed to delete comment");
     }
   };
 
@@ -107,13 +128,26 @@ export const CommentsSection = ({ videoId, videoComments = [] }: CommentsSection
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-slate-900 dark:text-white">
-                  @{comment.user?.name || "anonymous"}
-                </span>
-                <span className="text-xs text-slate-500">
-                  {comment.createdAt ? formatDistanceToNow(new Date(comment.createdAt)) + " ago" : "just now"}
-                </span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-slate-900 dark:text-white">
+                    @{comment.user?.name || "anonymous"}
+                  </span>
+                  <span className="text-xs text-slate-500">
+                    {comment.createdAt ? formatDistanceToNow(new Date(comment.createdAt)) + " ago" : "just now"}
+                  </span>
+                </div>
+                
+                {user?.id === comment.user?.clerkId && (
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => handleDelete(comment.id)}
+                    className="size-8 text-slate-400 hover:text-red-500 transition-colors opacity-0 group-hover/item:opacity-100"
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                )}
               </div>
               <p className="text-sm text-slate-700 dark:text-slate-300 font-medium leading-relaxed whitespace-pre-wrap">
                 {comment.content}

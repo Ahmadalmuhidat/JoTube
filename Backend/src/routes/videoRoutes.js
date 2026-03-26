@@ -22,7 +22,7 @@ const videoController = new VideoController(videoService);
 router.get('/', (req, res) => videoController.feed(req, res));
 router.get('/suggestions/:id', (req, res) => videoController.suggestions(req, res));
 router.get('/search/:query', (req, res) => videoController.search(req, res));
-router.get('/:id', (req, res) => videoController.getById(req, res));
+router.get('/:id', optionalAuth, (req, res) => videoController.getById(req, res));
 router.post('/', requireAuth, upload.fields([{ name: 'video', maxCount: 1 }, { name: 'thumbnail', maxCount: 1 }]), validate(createVideoSchema), (req, res) => videoController.create(req, res));
 router.delete('/:id', requireAuth, (req, res) => videoController.delete(req, res));
 router.post('/view', optionalAuth, validate(videoIdSchema), (req, res) => videoController.view(req, res));
@@ -31,5 +31,6 @@ router.post('/dislike', requireAuth, validate(videoIdSchema), (req, res) => vide
 router.post('/subscribe', requireAuth, (req, res) => videoController.subscribe(req, res));
 router.post('/unsubscribe', requireAuth, (req, res) => videoController.unsubscribe(req, res));
 router.post('/comment', requireAuth, validate(commentSchema), (req, res) => videoController.comment(req, res));
+router.delete('/comment/:id', requireAuth, (req, res) => videoController.deleteComment(req, res));
 
 export default router;

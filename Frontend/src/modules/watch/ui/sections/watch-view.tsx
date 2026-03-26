@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@clerk/nextjs";
 import axios from "@/config/axios";
 import { VideoPlayer } from "@/components/watch/video-player";
 import { VideoInfo } from "@/components/watch/video-info";
@@ -12,13 +13,17 @@ interface WatchViewProps {
 }
 
 export const WatchView = ({ videoId }: WatchViewProps) => {
+  const { getToken, isLoaded, isSignedIn } = useAuth();
   const [video, setVideo] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchVideo = async () => {
       try {
-        const response = await axios.get(`/videos/${videoId}`);
+        const token = isSignedIn ? await getToken() : null;
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        
+        const response = await axios.get(`/videos/${videoId}`, { headers });
         setVideo(response.data);
       } catch (error) {
         console.error("Failed to fetch video:", error);
@@ -27,8 +32,10 @@ export const WatchView = ({ videoId }: WatchViewProps) => {
       }
     };
 
-    fetchVideo();
-  }, [videoId]);
+    if (isLoaded) {
+      fetchVideo();
+    }
+  }, [videoId, isLoaded, isSignedIn, getToken]);
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen">

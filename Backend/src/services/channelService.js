@@ -1,12 +1,32 @@
 import ChannelRepository from '../repositories/channelRepository.js';
 
 export default class ChannelService {
-  constructor() {
+  constructor(storageStrategy) {
     this.channelRepository = new ChannelRepository();
+    this.storageStrategy = storageStrategy;
   }
 
   async create(userId, name, description) {
     return await this.channelRepository.create(userId, name, description);
+  }
+
+  async update(userId, data, imageFile) {
+    const channel = await this.getByUserId(userId);
+    if (!channel) throw new Error('Channel not found');
+
+    let imageUrl = channel.imageUrl;
+    if (imageFile) {
+      imageUrl = await this.storageStrategy.upload(
+        imageFile,
+        imageFile.originalname,
+        'jotube/channels'
+      );
+    }
+
+    return await this.channelRepository.update(channel.id, {
+      ...data,
+      imageUrl
+    });
   }
 
   async getByUserId(userId) {
