@@ -1,10 +1,13 @@
-"use client";
-
+import { useState } from "react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-import { CheckCircle, MoreVertical } from "lucide-react";
+import { CheckCircle, MoreVertical, Clock, Check } from "lucide-react";
+import { useAuth } from "@clerk/nextjs";
+import { toast } from "sonner";
+import axios from "@/config/axios";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 interface VideoCardProps {
   video: {
@@ -13,6 +16,7 @@ interface VideoCardProps {
     thumbnailUrl: string | null;
     viewCount: number;
     createdAt: string;
+    isWatchLater?: boolean;
     channel: {
       id: string;
       name: string;
@@ -25,6 +29,36 @@ interface VideoCardProps {
 }
 
 export function VideoCard({ video }: VideoCardProps) {
+  const { getToken, isSignedIn } = useAuth();
+  const [isWatchLater, setIsWatchLater] = useState(video.isWatchLater || false);
+  const [isToggling, setIsToggling] = useState(false);
+
+  const toggleWatchLater = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isSignedIn) {
+      toast.error("Please sign in to save videos");
+      return;
+    }
+
+    setIsToggling(true);
+    try {
+      const token = await getToken();
+      const response = await axios.post(`/videos/watch-later/${video.id}/toggle`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      const added = response.data.action === "added";
+      setIsWatchLater(added);
+      toast.success(added ? "Added to Watch Later" : "Removed from Watch Later");
+    } catch (error) {
+      console.error("Failed to toggle watch later:", error);
+      toast.error("Something went wrong");
+    } finally {
+      setIsToggling(false);
+    }
+  };
   return (
     <div className="group flex flex-col gap-3 cursor-pointer">
       {/* Thumbnail */}
@@ -44,6 +78,21 @@ export function VideoCard({ video }: VideoCardProps) {
                 <div className="w-0 h-0 border-t-[10px] border-t-transparent border-l-[16px] border-l-white border-b-[10px] border-b-transparent ml-1.5" />
              </div>
         </div>
+
+        {/* Watch Later Button */}
+        <Button
+          onClick={toggleWatchLater}
+          disabled={isToggling}
+          variant="secondary"
+          size="icon"
+          className={cn(
+            "absolute top-2 right-2 size-8 rounded-lg bg-black/60 hover:bg-black/80 border-none text-white opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-md scale-90 group-hover:scale-100",
+            isWatchLater && "bg-red-600 hover:bg-red-700 opacity-100"
+          )}
+          title={isWatchLater ? "Added to Watch Later" : "Watch Later"}
+        >
+          {isWatchLater ? <Check className="size-4" /> : <Clock className="size-4" />}
+        </Button>
       </Link>
 
       <div className="flex gap-3 px-1">

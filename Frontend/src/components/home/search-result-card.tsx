@@ -1,9 +1,16 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Clock, Check } from "lucide-react";
+import { useAuth } from "@clerk/nextjs";
+import { toast } from "sonner";
+import axios from "@/config/axios";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 interface SearchResultCardProps {
   video: {
@@ -13,6 +20,7 @@ interface SearchResultCardProps {
     thumbnailUrl: string | null;
     viewCount: number;
     createdAt: string;
+    isWatchLater?: boolean;
     channel: {
       id: string;
       name: string;
@@ -25,10 +33,41 @@ interface SearchResultCardProps {
 }
 
 export function SearchResultCard({ video }: SearchResultCardProps) {
+  const router = useRouter();
+  const { getToken, isSignedIn } = useAuth();
+  const [isWatchLater, setIsWatchLater] = useState(video.isWatchLater || false);
+  const [isToggling, setIsToggling] = useState(false);
+
+  const toggleWatchLater = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isSignedIn) {
+      toast.error("Please sign in to save videos");
+      return;
+    }
+
+    setIsToggling(true);
+    try {
+      const token = await getToken();
+      const response = await axios.post(`/videos/watch-later/${video.id}/toggle`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      const added = response.data.action === "added";
+      setIsWatchLater(added);
+      toast.success(added ? "Added to Watch Later" : "Removed from Watch Later");
+    } catch (error) {
+      console.error("Failed to toggle watch later:", error);
+      toast.error("Something went wrong");
+    } finally {
+      setIsToggling(false);
+    }
+  };
   return (
-    <Link 
-      href={`/watch/${video.id}`} 
-      className="group flex flex-col md:flex-row gap-6 p-2 rounded-2xl hover:bg-slate-100/50 dark:hover:bg-slate-800/30 transition-all duration-300"
+    <div 
+      onClick={() => router.push(`/watch/${video.id}`)} 
+      className="group flex flex-col md:flex-row gap-6 p-2 rounded-2xl hover:bg-slate-100/50 dark:hover:bg-slate-800/30 transition-all duration-300 cursor-pointer"
     >
       {/* Thumbnail Container */}
       <div className="relative aspect-video w-full md:w-[360px] lg:w-[400px] flex-shrink-0 bg-slate-200 dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm group-hover:shadow-xl group-hover:-translate-y-1 transition-all duration-500">
@@ -47,7 +86,24 @@ export function SearchResultCard({ video }: SearchResultCardProps) {
                 <div className="w-0 h-0 border-t-[10px] border-t-transparent border-l-[16px] border-l-white border-b-[10px] border-b-transparent ml-1.5" />
              </div>
         </div>
+
+        {/* Watch Later Button */}
+        <Button
+          onClick={toggleWatchLater}
+          disabled={isToggling}
+          variant="secondary"
+          size="icon"
+          className={cn(
+            "absolute top-2 right-2 size-8 rounded-lg bg-black/60 hover:bg-black/80 border-none text-white opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-md scale-90 group-hover:scale-100",
+            isWatchLater && "bg-red-600 hover:bg-red-700 opacity-100"
+          )}
+          title={isWatchLater ? "Added to Watch Later" : "Watch Later"}
+        >
+          {isWatchLater ? <Check className="size-4" /> : <Clock className="size-4" />}
+        </Button>
       </div>
+
+      {/* Info Section ... */}
 
       {/* Info Section */}
       <div className="flex flex-col flex-1 min-w-0 py-1">
@@ -82,6 +138,6 @@ export function SearchResultCard({ video }: SearchResultCardProps) {
           {video.description || "No description provided."}
         </p>
       </div>
-    </Link>
+    </div>
   );
 }

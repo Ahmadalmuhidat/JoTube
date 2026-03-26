@@ -14,6 +14,14 @@ export default class VideoService {
     return await this.videoRepository.getHistory(userId);
   }
 
+  async toggleWatchLater(videoId, userId) {
+    return await this.videoRepository.toggleWatchLater(videoId, userId);
+  }
+
+  async getWatchLater(userId) {
+    return await this.videoRepository.getWatchLater(userId);
+  }
+
   async getVideoById(id, userId = null) {
     return await this.videoRepository.findById(id, userId);
   }

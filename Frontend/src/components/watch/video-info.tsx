@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import axios from "@/config/axios";
 import { toast } from "sonner";
-import { ThumbsUp, ThumbsDown, Share2, MoreHorizontal, CheckCircle } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Share2, MoreHorizontal, CheckCircle, Clock, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDistanceToNow } from "date-fns";
@@ -21,6 +21,7 @@ interface VideoInfoProps {
     isLiked: boolean;
     isDisliked: boolean;
     isSubscribed: boolean;
+    isWatchLater: boolean;
     createdAt: string;
     channel: {
       name: string;
@@ -39,11 +40,37 @@ export const VideoInfo = ({ video }: VideoInfoProps) => {
   const [isLiked, setIsLiked] = useState(video?.isLiked || false);
   const [isDisliked, setIsDisliked] = useState(video?.isDisliked || false);
   const [isSubscribed, setIsSubscribed] = useState(video?.isSubscribed || false);
+  const [isWatchLater, setIsWatchLater] = useState(video?.isWatchLater || false);
   const [isLiking, setIsLiking] = useState(false);
   const [isDisliking, setIsDisliking] = useState(false);
   const [isSubscribing, setIsSubscribing] = useState(false);
+  const [isTogglingWatchLater, setIsTogglingWatchLater] = useState(false);
 
   if (!video) return null;
+ 
+  const handleWatchLater = async () => {
+    if (!isSignedIn) {
+      toast.error("Please sign in to save videos");
+      return;
+    }
+
+    setIsTogglingWatchLater(true);
+    try {
+      const token = await getToken();
+      const response = await axios.post(`/videos/watch-later/${video.id}/toggle`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      const added = response.data.action === "added";
+      setIsWatchLater(added);
+      toast.success(added ? "Added to Watch Later" : "Removed from Watch Later");
+    } catch (error) {
+      console.error("Watch Later error:", error);
+      toast.error("Failed to update Watch Later");
+    } finally {
+      setIsTogglingWatchLater(false);
+    }
+  };
 
   const handleLike = async () => {
     if (!isSignedIn) {
@@ -165,48 +192,67 @@ export const VideoInfo = ({ video }: VideoInfoProps) => {
             <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Verified Channel</span>
           </div>
           
-          <Button 
-            variant={isSubscribed ? "secondary" : "default"}
-            disabled={isSubscribing}
-            onClick={handleSubscribe}
-            className={cn(
-              "ml-4 rounded-full px-6 font-bold transition-all border-none",
-              !isSubscribed && "bg-slate-950 text-white dark:bg-white dark:text-slate-950 hover:opacity-90",
-              isSubscribed && "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white"
-            )}
-          >
-            {isSubscribed ? "Subscribed" : "Subscribe"}
-          </Button>
+          {isSignedIn && (
+            <Button 
+              variant={isSubscribed ? "secondary" : "default"}
+              disabled={isSubscribing}
+              onClick={handleSubscribe}
+              className={cn(
+                "ml-4 rounded-full px-6 font-bold transition-all border-none",
+                !isSubscribed && "bg-slate-950 text-white dark:bg-white dark:text-slate-950 hover:opacity-90",
+                isSubscribed && "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white"
+              )}
+            >
+              {isSubscribed ? "Subscribed" : "Subscribe"}
+            </Button>
+          )}
         </div>
         
         {/* Actions Bar */}
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 md:pb-0">
-           <div className="flex bg-slate-100 dark:bg-slate-800/80 rounded-full h-10 p-1 border border-slate-200/50 dark:border-slate-700/50">
-             <Button 
-               variant="ghost" 
-               size="sm" 
-               disabled={isLiking}
-               onClick={handleLike}
-               className={cn(
-                 "rounded-l-full px-4 flex items-center gap-2 hover:bg-slate-200 dark:hover:bg-slate-700 font-semibold border-r border-slate-200/50 dark:border-slate-700/50",
-                 isLiked && "text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/20"
-               )}
-             >
-               <ThumbsUp className={cn("size-4", isLiked && "fill-current")} /> {likes}
-             </Button>
-             <Button 
-               variant="ghost" 
-               size="sm" 
-               disabled={isDisliking}
-               onClick={handleDislike}
-               className={cn(
-                 "rounded-r-full px-4 hover:bg-slate-200 dark:hover:bg-slate-700 font-semibold",
-                 isDisliked && "text-red-600 dark:text-red-400 bg-red-50/50 dark:bg-red-900/20"
-               )}
-             >
-               <ThumbsDown className={cn("size-4", isDisliked && "fill-current")} /> {dislikes > 0 && dislikes}
-             </Button>
-           </div>
+           {isSignedIn && (
+             <>
+               <div className="flex bg-slate-100 dark:bg-slate-800/80 rounded-full h-10 p-1 border border-slate-200/50 dark:border-slate-700/50">
+                 <Button 
+                   variant="ghost" 
+                   size="sm" 
+                   disabled={isLiking}
+                   onClick={handleLike}
+                   className={cn(
+                     "rounded-l-full px-4 flex items-center gap-2 hover:bg-slate-200 dark:hover:bg-slate-700 font-semibold border-r border-slate-200/50 dark:border-slate-700/50",
+                     isLiked && "text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/20"
+                   )}
+                 >
+                   <ThumbsUp className={cn("size-4", isLiked && "fill-current")} /> {likes}
+                 </Button>
+                 <Button 
+                   variant="ghost" 
+                   size="sm" 
+                   disabled={isDisliking}
+                   onClick={handleDislike}
+                   className={cn(
+                     "rounded-r-full px-4 hover:bg-slate-200 dark:hover:bg-slate-700 font-semibold",
+                     isDisliked && "text-red-600 dark:text-red-400 bg-red-50/50 dark:bg-red-900/20"
+                   )}
+                 >
+                   <ThumbsDown className={cn("size-4", isDisliked && "fill-current")} /> {dislikes > 0 && dislikes}
+                 </Button>
+               </div>
+
+               <Button 
+                 variant="secondary" 
+                 onClick={handleWatchLater}
+                 disabled={isTogglingWatchLater}
+                 className={cn(
+                   "rounded-full h-10 px-4 flex items-center gap-2 font-semibold bg-slate-100 dark:bg-slate-800/80 border border-slate-200/50 dark:border-slate-700/50 transition-all",
+                   isWatchLater && "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 border-red-200/50 dark:border-red-800/50"
+                 )}
+               >
+                 {isWatchLater ? <Check className="size-4" /> : <Clock className="size-4" />}
+                 Watch Later
+               </Button>
+             </>
+           )}
            
            <Button variant="secondary" className="rounded-full h-10 px-4 flex items-center gap-2 font-semibold bg-slate-100 dark:bg-slate-800/80 border border-slate-200/50 dark:border-slate-700/50">
              <Share2 className="size-4" /> Share

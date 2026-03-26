@@ -83,39 +83,41 @@ export const CommentsSection = ({ videoId, videoComments = [] }: CommentsSection
       </div>
       
       {/* Add Comment */}
-      <div className="flex gap-4 mb-8 group/comment">
-        <Avatar className="size-10 border border-slate-200/50 dark:border-slate-800/50 shadow-sm">
-          <AvatarFallback className="bg-slate-100 dark:bg-slate-800"><User2 className="size-5 text-slate-500" /></AvatarFallback>
-        </Avatar>
-        <div className="flex-1 space-y-3">
-          <Input 
-            placeholder="Add a comment..." 
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            disabled={isSubmitting}
-            onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-            className="border-none border-b-2 border-slate-200 rounded-none focus-visible:ring-0 focus-visible:border-slate-900 dark:border-slate-800 dark:focus-visible:border-white transition-all bg-transparent px-0 text-base"
-          />
-          <div className="flex justify-end gap-2 opacity-0 group-focus-within/comment:opacity-100 transition-opacity">
-            <Button 
-              variant="ghost" 
-              className="rounded-full font-bold"
-              onClick={() => setNewComment("")}
+      {isSignedIn && (
+        <div className="flex gap-4 mb-8 group/comment">
+          <Avatar className="size-10 border border-slate-200/50 dark:border-slate-800/50 shadow-sm">
+            <AvatarFallback className="bg-slate-100 dark:bg-slate-800"><User2 className="size-5 text-slate-500" /></AvatarFallback>
+          </Avatar>
+          <div className="flex-1 space-y-3">
+            <Input 
+              placeholder="Add a comment..." 
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
               disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleSubmit}
-              disabled={isSubmitting || !newComment.trim()}
-              className="rounded-full bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold px-6 flex items-center gap-2"
-            >
-              {isSubmitting ? "Posting..." : "Comment"}
-              {!isSubmitting && <Send className="size-4" />}
-            </Button>
+              onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+              className="border-none border-b-2 border-slate-200 rounded-none focus-visible:ring-0 focus-visible:border-slate-900 dark:border-slate-800 dark:focus-visible:border-white transition-all bg-transparent px-0 text-base"
+            />
+            <div className="flex justify-end gap-2 opacity-0 group-focus-within/comment:opacity-100 transition-opacity">
+              <Button 
+                variant="ghost" 
+                className="rounded-full font-bold"
+                onClick={() => setNewComment("")}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleSubmit}
+                disabled={isSubmitting || !newComment.trim()}
+                className="rounded-full bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold px-6 flex items-center gap-2"
+              >
+                {isSubmitting ? "Posting..." : "Comment"}
+                {!isSubmitting && <Send className="size-4" />}
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
       
       {/* Comments List */}
       <div className="space-y-8">

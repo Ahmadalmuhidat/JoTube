@@ -37,6 +37,22 @@ export default class VideoController {
     res.status(200).json({ videos });
   }
 
+  async getWatchLater(req, res) {
+    const user = await this._getUser(req);
+    if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+    const videos = await this.videoService.getWatchLater(user.id);
+    res.status(200).json({ videos });
+  }
+
+  async toggleWatchLater(req, res) {
+    const user = await this._getUser(req);
+    if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+    const result = await this.videoService.toggleWatchLater(req.params.id, user.id);
+    res.status(200).json(result);
+  }
+
   async suggestions(req, res) {
     const videos = await this.recommendationService.suggestions(req.params.id);
     res.status(200).json(videos);
