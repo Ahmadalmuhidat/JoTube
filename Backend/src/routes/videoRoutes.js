@@ -20,6 +20,7 @@ const videoController = new VideoController(videoService);
 
 // Routes
 router.get('/', (req, res) => videoController.feed(req, res));
+router.get('/history', requireAuth, (req, res) => videoController.history(req, res));
 router.get('/suggestions/:id', (req, res) => videoController.suggestions(req, res));
 router.get('/search/:query', (req, res) => videoController.search(req, res));
 router.get('/:id', optionalAuth, (req, res) => videoController.getById(req, res));

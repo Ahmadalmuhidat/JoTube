@@ -30,7 +30,7 @@ export default function Categories() {
   const pathname = usePathname();
   const [activeCategory, setActiveCategory] = useState("All");
 
-  if (pathname.includes("/search")) return null;
+  if (pathname !== "/") return null;
 
   return (
     <div className="sticky top-[5.5rem] z-40 w-full px-4 mb-4">

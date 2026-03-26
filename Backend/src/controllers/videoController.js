@@ -29,6 +29,14 @@ export default class VideoController {
     res.status(200).json({ videos });
   }
 
+  async history(req, res) {
+    const user = await this._getUser(req);
+    if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+    const videos = await this.videoService.getHistory(user.id);
+    res.status(200).json({ videos });
+  }
+
   async suggestions(req, res) {
     const videos = await this.recommendationService.suggestions(req.params.id);
     res.status(200).json(videos);

@@ -10,6 +10,10 @@ export default class VideoService {
     return await this.videoRepository.search(query);
   }
 
+  async getHistory(userId) {
+    return await this.videoRepository.getHistory(userId);
+  }
+
   async getVideoById(id, userId = null) {
     return await this.videoRepository.findById(id, userId);
   }

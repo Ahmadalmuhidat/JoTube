@@ -116,21 +116,23 @@ export default class VideoRepository {
   async view(videoId, userId) {
     await prisma.$transaction(async (tx) => {
       if (userId) {
-        const view = await tx.view.findUnique({
+        const existingView = await tx.view.findUnique({
           where: { userId_videoId: { userId, videoId } }
         });
 
-        if (!view) {
-          await tx.view.create({
-            data: { videoId, userId }
-          });
+        await tx.view.upsert({
+          where: { userId_videoId: { userId, videoId } },
+          update: { createdAt: new Date() },
+          create: { videoId, userId }
+        });
+
+        if (!existingView) {
           await tx.video.update({
             where: { id: videoId },
             data: { viewCount: { increment: 1 } }
           });
         }
       } else {
-        // Anonymous view - just increment the count
         await tx.video.update({
           where: { id: videoId },
           data: { viewCount: { increment: 1 } }
@@ -138,6 +140,29 @@ export default class VideoRepository {
       }
     });
     return true;
+  }
+
+  async getHistory(userId) {
+    const views = await prisma.view.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        video: {
+          include: {
+            channel: {
+              include: {
+                user: true
+              }
+            }
+          }
+        }
+      }
+    });
+    
+    return views.map(view => new Video({
+      ...view.video,
+      viewedAt: view.createdAt
+    }));
   }
 
   async toggleLike(videoId, userId) {

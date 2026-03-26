@@ -21,6 +21,7 @@ class Video {
     this.isLiked = data.isLiked || false;
     this.isDisliked = data.isDisliked || false;
     this.isSubscribed = data.isSubscribed || false;
+    this.viewedAt = data.viewedAt;
   }
 }
 
