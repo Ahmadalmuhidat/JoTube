@@ -26,7 +26,7 @@ export default class VideoController {
 
   async search(req, res) {
     const videos = await this.videoService.search(req.params.query);
-    res.status(200).json(videos);
+    res.status(200).json({ videos });
   }
 
   async suggestions(req, res) {

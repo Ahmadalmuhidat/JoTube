@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const categories = [
@@ -26,7 +27,10 @@ const categories = [
 ];
 
 export default function Categories() {
+  const pathname = usePathname();
   const [activeCategory, setActiveCategory] = useState("All");
+
+  if (pathname.includes("/search")) return null;
 
   return (
     <div className="sticky top-[5.5rem] z-40 w-full px-4 mb-4">
