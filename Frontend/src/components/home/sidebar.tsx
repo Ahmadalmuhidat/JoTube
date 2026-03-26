@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
@@ -94,13 +95,13 @@ export default function HomeSidebar() {
                         : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200"
                     )}
                   >
-                    <a href={item.url} className="flex items-center gap-4">
+                    <Link href={item.url} className="flex items-center gap-4">
                       <item.icon className={cn(
                         "transition-transform duration-300 group-hover:scale-110",
                         pathname === item.url ? "text-red-600 dark:text-red-500" : ""
                       )} />
                       <span className="text-sm font-semibold">{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

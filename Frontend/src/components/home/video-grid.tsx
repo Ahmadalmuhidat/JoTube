@@ -5,14 +5,19 @@ import axios from "@/config/axios";
 import { VideoCard } from "./video-card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function VideoGrid() {
+interface VideoGridProps {
+  query?: string | null;
+}
+
+export function VideoGrid({ query }: VideoGridProps) {
   const [videos, setVideos] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const response = await axios.get("/videos");
+        const url = query ? `/videos/search/${encodeURIComponent(query)}` : "/videos";
+        const response = await axios.get(url);
         // Backend returns { videos: [...] }
         setVideos(response.data.videos || []);
       } catch (error) {
@@ -23,7 +28,7 @@ export function VideoGrid() {
     };
 
     fetchVideos();
-  }, []);
+  }, [query]);
 
   if (isLoading) {
     return (

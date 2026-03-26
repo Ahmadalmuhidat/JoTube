@@ -23,6 +23,7 @@ model User {
   likes         Like[]
   dislikes      Dislike[]
   subscriptions Subscription[]
+  watchLater    WatchLater[]
 
   @@index([clerkId])
 }
@@ -80,7 +81,8 @@ model Video {
   playlistVideos PlaylistVideo[]
 
   // View logs
-  views View[]
+  views      View[]
+  watchLater WatchLater[]
 
   @@index([channelId])
   @@index([createdAt])
@@ -224,4 +226,19 @@ model Subscription {
 
   @@unique([userId, channelId])
   @@index([channelId])
+}
+
+model WatchLater {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  // Relationships
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  videoId String
+  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, videoId])
+  @@index([videoId])
 }

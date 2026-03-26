@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { SearchIcon, VideoIcon, BellIcon, Sparkles } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -8,6 +10,14 @@ import { Input } from "@/components/ui/input";
 import AuthButton from "@/components/home/auth-button";
 
 export default function HomeNavbar() {
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+  };
   return (
     <nav className="fixed top-4 left-4 right-4 h-16 bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 rounded-2xl flex items-center px-4 z-50 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] transition-all duration-500 group/nav overflow-hidden">
       <div className="absolute inset-0 bg-slate-900/5 dark:bg-white/5 opacity-0 group-hover/nav:opacity-100 transition-opacity duration-500 pointer-events-none" />
@@ -28,21 +38,24 @@ export default function HomeNavbar() {
 
         {/* Center Section: Search Bar */}
         <div className="flex-1 flex justify-center max-w-[720px]">
-          <div className="flex items-center w-full group/search">
+          <form onSubmit={handleSearch} className="flex items-center w-full group/search">
             <div className="flex items-center flex-1 border border-slate-200 dark:border-slate-800 rounded-l-2xl px-4 py-1 ml-10 shadow-sm transition-all duration-300 group-focus-within/search:ring-2 group-focus-within/search:ring-slate-900/10 dark:group-focus-within/search:ring-white/10 group-focus-within/search:border-slate-900 dark:group-focus-within/search:border-white bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm">
               <SearchIcon className="size-4 text-slate-400 mr-2 hidden group-focus-within/search:block transition-all" />
               <Input
                 placeholder="Search anything..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="border-none focus-visible:ring-0 h-10 p-0 bg-transparent text-base placeholder:text-slate-400"
               />
             </div>
             <Button
+              type="submit"
               variant="secondary"
               className="rounded-r-2xl border-l-0 border border-slate-200 dark:border-slate-800 px-6 h-[42px] bg-slate-50 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-sm"
             >
               <SearchIcon className="size-4 text-slate-700 dark:text-slate-300" />
             </Button>
-          </div>
+          </form>
         </div>
 
         {/* Right Section: Actions */}
