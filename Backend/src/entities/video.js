@@ -15,6 +15,12 @@ class Video {
     this.channelId = data.channelId;
     this.channel = data.channel;
     this.categories = data.categories;
+    this.comments = data.comments;
+
+    // Interaction status for the current user
+    this.isLiked = data.isLiked || false;
+    this.isDisliked = data.isDisliked || false;
+    this.isSubscribed = data.isSubscribed || false;
   }
 }
 

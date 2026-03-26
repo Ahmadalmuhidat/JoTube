@@ -1,83 +1,79 @@
 import prisma from '../database/prisma.js';
 
 class RecommendationRepository {
-  async getRecommendations(userId) {
-    let subscriptionVideos = [];
-    let relatedVideos = [];
+  async getVideosFromSubscriptions(userId) {
+    const subscriptions = await prisma.subscription.findMany({
+      where: { userId },
+      select: { channelId: true }
+    });
+    const channelIds = subscriptions.map(s => s.channelId);
 
-    if (userId) {
-      // 1. Get videos from channels the user is subscribed to
-      const subscriptions = await prisma.subscription.findMany({
-        where: { userId },
-        select: { channelId: true }
-      });
-      const channelIds = subscriptions.map(s => s.channelId);
-
-      if (channelIds.length > 0) {
-        subscriptionVideos = await prisma.video.findMany({
-          where: {
-            channelId: { in: channelIds },
-            NOT: {
-              views: {
-                some: { userId }
-              }
-            }
-          },
-          take: 10,
-          orderBy: { createdAt: 'desc' },
-          include: {
-            channel: {
-              include: {
-                user: true
-              }
+    if (channelIds.length > 0) {
+      return await prisma.video.findMany({
+        where: {
+          channelId: { in: channelIds },
+          NOT: {
+            views: {
+              some: { userId }
             }
           }
-        });
-      }
-
-      // 2. Get videos from categories the user likes
-      const likedVideos = await prisma.like.findMany({
-        where: { userId },
+        },
+        take: 10,
+        orderBy: { createdAt: 'desc' },
         include: {
-          video: {
+          channel: {
             include: {
-              categories: true
+              user: true
             }
           }
         }
       });
-
-      const likedCategoryIds = likedVideos.flatMap(l => l.video.categories.map(c => c.categoryId));
-
-      if (likedCategoryIds.length > 0) {
-        relatedVideos = await prisma.video.findMany({
-          where: {
-            categories: {
-              some: {
-                categoryId: { in: likedCategoryIds }
-              }
-            },
-            NOT: {
-              OR: [
-                { views: { some: { userId } } },
-                { id: { in: likedVideos.map(l => l.videoId) } }
-              ]
-            }
-          },
-          take: 10,
-          include: {
-            channel: {
-              include: {
-                user: true
-              }
-            }
-          }
-        });
-      }
     }
 
-    // 3. Get trending videos (most views total)
-    const trendingVideos = await prisma.video.findMany({
+    return [];
+  }
+
+  async getVideosFromLikedCategories(userId) {
+    const likedVideos = await prisma.like.findMany({
+      where: { userId },
+      include: {
+        video: {
+          include: {
+            categories: true
+          }
+        }
+      }
+    });
+    const likedCategoryIds = likedVideos.flatMap(l => l.video.categories.map(c => c.categoryId));
+    if (likedCategoryIds.length > 0) {
+      return await prisma.video.findMany({
+        where: {
+          categories: {
+            some: {
+              categoryId: { in: likedCategoryIds }
+            }
+          },
+          NOT: {
+            views: {
+              some: { userId }
+            }
+          }
+        },
+        take: 10,
+        include: {
+          channel: {
+            include: {
+              user: true
+            }
+          }
+        }
+      });
+    }
+    return [];
+  }
+
+  async getTrendingVideos() {
+    return await prisma.video.findMany({
       take: 10,
       orderBy: {
         views: {
@@ -92,9 +88,10 @@ class RecommendationRepository {
         }
       }
     });
+  }
 
-    // 4. Get recently added videos
-    const recentVideos = await prisma.video.findMany({
+  async getRecentVideos() {
+    return await prisma.video.findMany({
       take: 10,
       orderBy: { createdAt: 'desc' },
       include: {
@@ -105,29 +102,14 @@ class RecommendationRepository {
         }
       }
     });
-
-    // Combine and remove duplicates
-    const allVideos = [...subscriptionVideos, ...relatedVideos, ...trendingVideos, ...recentVideos];
-    const uniqueVideos = Array.from(new Map(allVideos.map(v => [v.id, v])).values());
-
-    return uniqueVideos;
   }
 
-  async suggestions(id) {
-    // Basic recommendation: get videos from the same channel or just recent videos
-    const currentVideo = await prisma.video.findUnique({
-      where: { id },
-      select: { channelId: true }
-    });
-
+  async suggestions(videoId, channelId) {
     const suggestions = await prisma.video.findMany({
       where: {
-        id: { not: id },
-        // Try to prioritize same channel if possible, otherwise just other videos
-        OR: [
-          { channelId: currentVideo?.channelId },
-          { isPublished: true }
-        ]
+        channelId: channelId,
+        id: { not: videoId },
+        isPublished: true
       },
       take: 20,
       orderBy: { createdAt: 'desc' },

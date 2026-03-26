@@ -60,7 +60,7 @@ export default class VideoRepository {
 
   }
 
-  async findById(id) {
+  async findById(id, userId = null) {
     const videoData = await prisma.video.findUnique({
       where: {
         id: id,
@@ -82,7 +82,35 @@ export default class VideoRepository {
       }
     });
     if (!videoData) return null;
-    return new Video(videoData);
+
+    let isLiked = false;
+    let isDisliked = false;
+    let isSubscribed = false;
+
+    if (userId) {
+      const [like, dislike, subscription] = await Promise.all([
+        prisma.like.findUnique({
+          where: { userId_videoId: { userId, videoId: id } }
+        }),
+        prisma.dislike.findUnique({
+          where: { userId_videoId: { userId, videoId: id } }
+        }),
+        prisma.subscription.findUnique({
+          where: { userId_channelId: { userId, channelId: videoData.channelId } }
+        })
+      ]);
+
+      isLiked = !!like;
+      isDisliked = !!dislike;
+      isSubscribed = !!subscription;
+    }
+
+    return new Video({
+      ...videoData,
+      isLiked,
+      isDisliked,
+      isSubscribed
+    });
   }
 
   async view(videoId, userId) {
@@ -131,12 +159,14 @@ export default class VideoRepository {
         await tx.like.create({ data: { videoId, userId } });
         await tx.video.update({ where: { id: videoId }, data: { likeCount: { increment: 1 } } });
 
+        let removedDislike = false;
         if (existingDislike) {
           // Remove dislike if it existed
           await tx.dislike.delete({ where: { id: existingDislike.id } });
           await tx.video.update({ where: { id: videoId }, data: { dislikeCount: { decrement: 1 } } });
+          removedDislike = true;
         }
-        return { action: 'liked' };
+        return { action: 'liked', removedDislike };
       }
     });
   }
@@ -160,12 +190,14 @@ export default class VideoRepository {
         await tx.dislike.create({ data: { videoId, userId } });
         await tx.video.update({ where: { id: videoId }, data: { dislikeCount: { increment: 1 } } });
 
+        let removedLike = false;
         if (existingLike) {
           // Remove like if it existed
           await tx.like.delete({ where: { id: existingLike.id } });
           await tx.video.update({ where: { id: videoId }, data: { likeCount: { decrement: 1 } } });
+          removedLike = true;
         }
-        return { action: 'disliked' };
+        return { action: 'disliked', removedLike };
       }
     });
   }
@@ -188,7 +220,16 @@ export default class VideoRepository {
 
   async comment(videoId, userId, content) {
     return await prisma.comment.create({
-      data: { videoId, userId, content }
+      data: { videoId, userId, content },
+      include: {
+        user: true
+      }
+    });
+  }
+
+  async deleteComment(id) {
+    return await prisma.comment.delete({
+      where: { id }
     });
   }
 }

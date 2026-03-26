@@ -16,6 +16,7 @@ interface VideoCardProps {
     channel: {
       id: string;
       name: string;
+      imageUrl?: string | null;
       user?: {
         image?: string;
       };
@@ -48,7 +49,7 @@ export function VideoCard({ video }: VideoCardProps) {
       <div className="flex gap-3 px-1">
         {/* Channel Avatar */}
         <Avatar className="size-9 ring-2 ring-transparent group-hover:ring-red-500/20 transition-all duration-300">
-          <AvatarImage src={video.channel.user?.image} />
+          <AvatarImage src={video.channel.imageUrl || video.channel.user?.image} />
           <AvatarFallback className="bg-slate-100 dark:bg-slate-800 text-[10px] font-bold">
             {video.channel.name.substring(0, 2).toUpperCase()}
           </AvatarFallback>

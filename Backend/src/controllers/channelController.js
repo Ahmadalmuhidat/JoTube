@@ -1,10 +1,30 @@
 import ChannelService from '../services/channelService.js';
 import UserRepository from '../repositories/userRepository.js';
 
+import StorageStrategy from '../providers/storageStrategy.js';
+import GoogleStorage from '../providers/googleStorage.js';
+
 class ChannelController {
   constructor() {
-    this.channelService = new ChannelService();
+    const storageStrategy = new StorageStrategy();
+    storageStrategy.setStorage(new GoogleStorage());
+
+    this.channelService = new ChannelService(storageStrategy);
     this.userRepository = new UserRepository();
+  }
+
+  async update(req, res) {
+    try {
+      const clerkId = req.auth?.userId;
+      const user = await this.userRepository.findByClerkId(clerkId);
+      if (!user) return res.status(401).json({ error: 'User not found' });
+
+      const channel = await this.channelService.update(user.id, req.body, req.file);
+      res.status(200).json(channel);
+    } catch (error) {
+      console.error("Error updating channel:", error);
+      res.status(500).json({ error: error.message || 'Internal server error' });
+    }
   }
 
   async create(req, res) {
