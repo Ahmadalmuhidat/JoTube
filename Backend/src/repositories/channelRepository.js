@@ -1,8 +1,8 @@
 import prisma from '../database/prisma.js';
 
 export default class ChannelRepository {
-  async getById(id) {
-    return await prisma.channel.findUnique({
+  async getById(id, userId = null) {
+    const channel = await prisma.channel.findUnique({
       where: { id },
       include: {
         user: true,
@@ -19,6 +19,34 @@ export default class ChannelRepository {
         }
       }
     });
+
+    if (!channel) return null;
+
+    let isSubscribed = false;
+    if (userId) {
+      const subscription = await prisma.subscription.findUnique({
+        where: { userId_channelId: { userId, channelId: id } }
+      });
+      isSubscribed = !!subscription;
+    }
+
+    return { ...channel, isSubscribed };
+  }
+
+  async subscribe(channelId, userId) {
+    await prisma.subscription.upsert({
+      where: { userId_channelId: { userId, channelId } },
+      update: {},
+      create: { channelId, userId }
+    });
+    return true;
+  }
+
+  async unsubscribe(channelId, userId) {
+    await prisma.subscription.delete({
+      where: { userId_channelId: { userId, channelId } }
+    });
+    return true;
   }
 
   async getByUserId(userId) {
@@ -58,6 +86,7 @@ export default class ChannelRepository {
       include: {
         channel: {
           include: {
+            user: true,
             _count: {
               select: {
                 subscribers: true

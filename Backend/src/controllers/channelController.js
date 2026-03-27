@@ -57,9 +57,42 @@ class ChannelController {
   }
 
   async getChannelById(req, res) {
-    const channel = await this.channelService.getById(req.params.id);
+    const user = await this._getUser(req);
+    const channel = await this.channelService.getById(req.params.id, user?.id);
     if (!channel) return res.status(404).json({ error: 'Channel not found' });
     res.status(200).json(channel);
+  }
+
+  async _getUser(req) {
+    const clerkId = req.auth?.userId;
+    if (!clerkId) return null;
+    return await this.userRepository.findByClerkId(clerkId);
+  }
+
+  async subscribe(req, res) {
+    try {
+      const user = await this._getUser(req);
+      if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+      await this.channelService.subscribe(req.params.id, user.id);
+      res.status(200).json({ message: "Subscribed successfully" });
+    } catch (error) {
+      console.error("Subscribe error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  async unsubscribe(req, res) {
+    try {
+      const user = await this._getUser(req);
+      if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+      await this.channelService.unsubscribe(req.params.id, user.id);
+      res.status(200).json({ message: "Unsubscribed successfully" });
+    } catch (error) {
+      console.error("Unsubscribe error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
   }
 
   async getSubscribedChannels(req, res) {

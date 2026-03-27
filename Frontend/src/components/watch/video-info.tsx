@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
+import { useQueryClient } from "@tanstack/react-query";
 import axios from "@/config/axios";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -37,6 +38,7 @@ interface VideoInfoProps {
 
 export const VideoInfo = ({ video }: VideoInfoProps) => {
   const { getToken, isSignedIn } = useAuth();
+  const queryClient = useQueryClient();
   const [likes, setLikes] = useState(video?.likeCount || 0);
   const [dislikes, setDislikes] = useState(video?.dislikeCount || 0);
   const [isLiked, setIsLiked] = useState(video?.isLiked || false);
@@ -162,6 +164,9 @@ export const VideoInfo = ({ video }: VideoInfoProps) => {
         setIsSubscribed(true);
         toast.success("Subscribed!");
       }
+      
+      // Invalidate subscriptions query to update sidebar
+      queryClient.invalidateQueries({ queryKey: ["subscriptions"] });
     } catch (error) {
       console.error("Subscribe error:", error);
       toast.error("Failed to update subscription");

@@ -43,8 +43,16 @@ export default class ChannelService {
     return await this.channelRepository.getByUserId(userId);
   }
 
-  async getById(id) {
-    return await this.channelRepository.getById(id);
+  async getById(id, userId = null) {
+    return await this.channelRepository.getById(id, userId);
+  }
+
+  async subscribe(channelId, userId) {
+    return await this.channelRepository.subscribe(channelId, userId);
+  }
+
+  async unsubscribe(channelId, userId) {
+    return await this.channelRepository.unsubscribe(channelId, userId);
   }
 
   async getSubscribedChannels(userId) {
