@@ -38,16 +38,16 @@ function HistoryContent() {
       <div className="w-full min-h-screen px-4 md:px-8 lg:px-16 py-6 border-l border-slate-200/50 dark:border-slate-800/50">
         <div className="space-y-6">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="flex flex-col md:flex-row gap-6 p-2 h-auto md:h-[180px]">
-              <Skeleton className="aspect-video w-full md:w-[320px] lg:w-[360px] rounded-2xl bg-slate-200/60 dark:bg-slate-800/60 flex-shrink-0" />
+            <div key={i} className="flex flex-col md:flex-row gap-4 p-2 h-auto md:h-[140px]">
+              <Skeleton className="aspect-video w-full md:w-[240px] lg:w-[280px] rounded-xl bg-slate-200/60 dark:bg-slate-800/60 flex-shrink-0" />
               <div className="flex flex-col flex-1 gap-2 py-1">
-                <Skeleton className="h-6 w-[70%] bg-slate-200/60 dark:bg-slate-800/60" />
-                <Skeleton className="h-4 w-[30%] bg-slate-200/60 dark:bg-slate-800/60 mt-1" />
-                <div className="flex items-center gap-3 mt-4">
-                  <Skeleton className="size-8 rounded-full bg-slate-200/60 dark:bg-slate-800/60" />
-                  <Skeleton className="h-4 w-[20%] bg-slate-200/60 dark:bg-slate-800/60" />
+                <Skeleton className="h-5 w-[60%] bg-slate-200/60 dark:bg-slate-800/60" />
+                <Skeleton className="h-3 w-[20%] bg-slate-200/60 dark:bg-slate-800/60 mt-1" />
+                <div className="flex items-center gap-2 mt-3">
+                  <Skeleton className="size-6 rounded-full bg-slate-200/60 dark:bg-slate-800/60" />
+                  <Skeleton className="h-3 w-[15%] bg-slate-200/60 dark:bg-slate-800/60" />
                 </div>
-                <Skeleton className="h-4 w-[80%] bg-slate-200/60 dark:bg-slate-800/60 mt-4" />
+                <Skeleton className="h-3 w-[70%] bg-slate-200/60 dark:bg-slate-800/60 mt-3" />
               </div>
             </div>
           ))}
