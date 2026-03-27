@@ -38,6 +38,8 @@ export default function SettingsView() {
   const [isSaving, setIsSaving] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewBanner, setPreviewBanner] = useState<string | null>(null);
+  const [selectedBannerFile, setSelectedBannerFile] = useState<File | null>(null);
 
   const form = useForm<ChannelFormValues>({
     resolver: zodResolver(channelSchema),
@@ -60,6 +62,7 @@ export default function SettingsView() {
           description: channel.description || "",
         });
         setPreviewImage(channel.imageUrl);
+        setPreviewBanner(channel.bannerUrl);
       } catch (error) {
         console.error("Failed to fetch channel:", error);
         toast.error("Failed to load channel settings");
@@ -79,6 +82,14 @@ export default function SettingsView() {
     }
   };
 
+  const onBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedBannerFile(file);
+      setPreviewBanner(URL.createObjectURL(file));
+    }
+  };
+
   const onSubmit = async (values: ChannelFormValues) => {
     setIsSaving(true);
     try {
@@ -87,6 +98,7 @@ export default function SettingsView() {
       formData.append("name", values.name);
       if (values.description) formData.append("description", values.description);
       if (selectedFile) formData.append("image", selectedFile);
+      if (selectedBannerFile) formData.append("banner", selectedBannerFile);
 
       await axios.patch("/channels/me", formData, {
         headers: {
@@ -153,7 +165,46 @@ export default function SettingsView() {
             <div className="bg-white dark:bg-black/20 rounded-[4rem] border border-slate-200/50 dark:border-slate-800/50 p-12 md:p-20 shadow-2xl shadow-slate-200/10 dark:shadow-none backdrop-blur-3xl relative overflow-hidden">
               <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-600/5 blur-[120px] rounded-full -mr-64 -mt-64" />
               
-              <div className="flex flex-col lg:flex-row gap-20 lg:gap-32 relative z-10">
+              <div className="flex flex-col gap-16 relative z-10">
+                {/* Banner Upload Section */}
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <h3 className="text-2xl font-black text-slate-900 dark:text-white">Channel Banner</h3>
+                    <p className="text-base font-medium text-slate-500 dark:text-slate-400">
+                        This image will appear across the top of your channel. We recommend a 2048 x 1152 pixels or larger.
+                    </p>
+                  </div>
+                  
+                  <div className="relative group/banner overflow-hidden rounded-[2.5rem] bg-slate-100 dark:bg-slate-900/50 border-2 border-dashed border-slate-200 dark:border-slate-800 transition-all hover:border-red-600/30">
+                    <div className="aspect-[6/1] md:aspect-[8/1] w-full relative">
+                        {previewBanner ? (
+                            <img src={previewBanner} className="w-full h-full object-cover opacity-80 group-hover/banner:opacity-100 transition-opacity" />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800/20 dark:to-slate-900/20">
+                                <span className="text-slate-300 dark:text-slate-700 font-black text-6xl tracking-[1em] uppercase opacity-20 select-none">JoTube Banner</span>
+                            </div>
+                        )}
+                        
+                        <label 
+                          htmlFor="banner-upload"
+                          className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/40 opacity-0 group-hover/banner:opacity-100 transition-all cursor-pointer backdrop-blur-[2px]"
+                        >
+                          <CameraIcon className="size-12 text-white mb-2" />
+                          <span className="text-white text-sm font-black uppercase tracking-[0.4em]">Change Banner</span>
+                        </label>
+                        
+                        <input 
+                          id="banner-upload"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={onBannerChange}
+                        />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col lg:flex-row gap-20 lg:gap-32">
                 {/* Branding Left Column */}
                 <div className="flex flex-col items-center lg:items-start gap-12 lg:w-[280px] flex-shrink-0">
                   <div className="relative group">
@@ -244,6 +295,7 @@ export default function SettingsView() {
                 </div>
               </div>
             </div>
+          </div>
           </form>
         </Form>
       </div>

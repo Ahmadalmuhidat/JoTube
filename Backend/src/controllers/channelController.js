@@ -19,7 +19,10 @@ class ChannelController {
       const user = await this.userRepository.findByClerkId(clerkId);
       if (!user) return res.status(401).json({ error: 'User not found' });
 
-      const channel = await this.channelService.update(user.id, req.body, req.file);
+      const imageFile = req.files?.image?.[0];
+      const bannerFile = req.files?.banner?.[0];
+
+      const channel = await this.channelService.update(user.id, req.body, imageFile, bannerFile);
       res.status(200).json(channel);
     } catch (error) {
       console.error("Error updating channel:", error);
