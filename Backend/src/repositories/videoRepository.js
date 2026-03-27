@@ -4,13 +4,16 @@ import Video from '../entities/video.js';
 export default class VideoRepository {
   async search(query) {
     const videosData = await prisma.video.findMany({
-      where: query ? {
-        OR: [
-          { title: { contains: query } },
-          { description: { contains: query } },
-          { channel: { name: { contains: query } } }
-        ]
-      } : {},
+      where: {
+        visibility: 'PUBLIC',
+        ...(query ? {
+          OR: [
+            { title: { contains: query } },
+            { description: { contains: query } },
+            { channel: { name: { contains: query } } }
+          ]
+        } : {})
+      },
       include: {
         channel: {
           include: {
@@ -33,13 +36,11 @@ export default class VideoRepository {
         likeCount: 0,
         dislikeCount: 0,
         duration: body.duration || 0,
-        isPublished: body.isPublished === 'true' || body.isPublished === true,
+        visibility: body.visibility || 'DRAFT',
         channelId: body.channelId,
         categories: {
-          create: (Array.isArray(body.categoryIds) ? body.categoryIds : (body.categoryIds ? [body.categoryIds] : [])).map(categoryId => ({
-            category: {
-              connect: { id: categoryId }
-            }
+          connect: (Array.isArray(body.categoryIds) ? body.categoryIds : (body.categoryIds ? [body.categoryIds] : [])).map(categoryId => ({
+            id: categoryId
           })) || []
         }
       },
@@ -57,7 +58,28 @@ export default class VideoRepository {
       }
     });
     return true;
+  }
 
+  async updateVideo(id, data) {
+    const videoData = await prisma.video.update({
+      where: { id },
+      data: {
+        title: data.title,
+        description: data.description,
+        visibility: data.visibility,
+        thumbnailUrl: data.thumbnailUrl,
+        categories: data.categoryIds ? {
+          set: (Array.isArray(data.categoryIds) ? data.categoryIds : [data.categoryIds]).map(categoryId => ({
+            id: categoryId
+          }))
+        } : undefined
+      },
+      include: {
+        categories: true,
+        channel: true
+      }
+    });
+    return new Video(videoData);
   }
 
   async findById(id, userId = null) {
@@ -293,6 +315,30 @@ export default class VideoRepository {
   async deleteComment(id) {
     return await prisma.comment.delete({
       where: { id }
+    });
+  }
+
+  async getLikedVideos(userId) {
+    const likes = await prisma.like.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        video: {
+          include: {
+            channel: {
+              include: { user: true }
+            }
+          }
+        }
+      }
+    });
+
+    return likes.map(like => new Video(like.video));
+  }
+
+  async getChannelByUserId(userId) {
+    return await prisma.channel.findFirst({
+      where: { userId }
     });
   }
 }

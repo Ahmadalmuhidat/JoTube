@@ -9,7 +9,7 @@ class Video {
     this.likeCount = data.likeCount || 0;
     this.dislikeCount = data.dislikeCount || 0;
     this.duration = data.duration || 0;
-    this.isPublished = data.isPublished;
+    this.visibility = data.visibility;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
     this.channelId = data.channelId;

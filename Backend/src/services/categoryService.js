@@ -9,8 +9,8 @@ export default class CategoryService {
     return await this.categoryRepository.getAll();
   }
 
-  async create(name, description) {
-    return await this.categoryRepository.create(name, description);
+  async create(name) {
+    return await this.categoryRepository.create(name);
   }
 
   async delete(id) {

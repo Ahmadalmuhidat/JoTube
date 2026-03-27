@@ -14,9 +14,9 @@ export default class CategoryRepository {
     });
   }
 
-  async create(name, description) {
+  async create(name) {
     return await prisma.category.create({
-      data: { name, description }
+      data: { name }
     });
   }
 

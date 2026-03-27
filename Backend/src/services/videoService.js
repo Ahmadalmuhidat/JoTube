@@ -26,9 +26,9 @@ export default class VideoService {
     return await this.videoRepository.findById(id, userId);
   }
 
-  async createVideo(data, files) {
-    let videoUrl = data.videoUrl;
-    let thumbnailUrl = data.thumbnailUrl;
+  async uploadFiles(files) {
+    let videoUrl = null;
+    let thumbnailUrl = null;
 
     if (files) {
       if (files.video) {
@@ -47,6 +47,19 @@ export default class VideoService {
       }
     }
 
+    return { videoUrl, thumbnailUrl };
+  }
+
+  async createVideo(data, files) {
+    let videoUrl = data.videoUrl;
+    let thumbnailUrl = data.thumbnailUrl;
+
+    if (files) {
+      const uploaded = await this.uploadFiles(files);
+      if (uploaded.videoUrl) videoUrl = uploaded.videoUrl;
+      if (uploaded.thumbnailUrl) thumbnailUrl = uploaded.thumbnailUrl;
+    }
+
     return await this.videoRepository.create({
       ...data,
       videoUrl,
@@ -60,15 +73,46 @@ export default class VideoService {
     if (!video) throw new Error('Video not found');
 
     if (video.videoUrl) {
-      const fileName = video.videoUrl.split('/').pop();
+      // Decode the URL and handle potential folder prefixes
+      const decodedUrl = decodeURIComponent(video.videoUrl);
+      const fileName = decodedUrl.split('/').pop().replace(/^videos\//, '');
       await this.storageStrategy.delete(fileName, 'jotube/videos');
     }
     if (video.thumbnailUrl) {
-      const fileName = video.thumbnailUrl.split('/').pop();
+      const decodedUrl = decodeURIComponent(video.thumbnailUrl);
+      const fileName = decodedUrl.split('/').pop().replace(/^thumbnails\//, '');
       await this.storageStrategy.delete(fileName, 'jotube/thumbnails');
     }
 
     return await this.videoRepository.delete(id);
+  }
+
+  async updateVideo(id, userId, data, files) {
+    const video = await this.videoRepository.findById(id);
+    if (!video) throw new Error('Video not found');
+
+    // Basic ownership check: find the channel for this user and video
+    const channel = await this.videoRepository.getChannelByUserId(userId);
+    if (!channel || channel.id !== video.channelId) throw new Error('Unauthorized');
+
+    let thumbnailUrl = data.thumbnailUrl;
+    if (files && files.thumbnail) {
+      // Delete old thumbnail if it exists
+      if (video.thumbnailUrl) {
+        const oldFileName = video.thumbnailUrl.split('/').pop();
+        await this.storageStrategy.delete(oldFileName, 'jotube/thumbnails');
+      }
+      thumbnailUrl = await this.storageStrategy.upload(
+        files.thumbnail[0],
+        files.thumbnail[0].originalname,
+        'jotube/thumbnails'
+      );
+    }
+
+    return await this.videoRepository.updateVideo(id, {
+      ...data,
+      thumbnailUrl
+    });
   }
 
   async viewVideo(videoId, userId) {
@@ -108,5 +152,9 @@ export default class VideoService {
     // Let's assume the controller does the verification or we just proceed for now.
     // Actually, let's do a simple check.
     return await this.videoRepository.deleteComment(commentId);
+  }
+
+  async getLikedVideos(userId) {
+    return await this.videoRepository.getLikedVideos(userId);
   }
 }

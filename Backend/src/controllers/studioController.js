@@ -33,7 +33,7 @@ export default class StudioController {
       const user = await this._getUser(req);
       if (!user) return res.status(401).json({ message: "Unauthorized" });
 
-      const videos = await this.studioRepository.getRecentVideos(user.id);
+      const videos = await this.studioRepository.getChannelVideos(user.id);
       res.status(200).json(videos);
     } catch (error) {
       console.error('Error fetching studio videos:', error);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@clerk/nextjs";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { CheckCircle, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -22,13 +23,16 @@ interface ChannelHeaderProps {
     user: {
       image: string;
     };
+    isSubscribed: boolean;
   };
 }
 
 export const ChannelHeader = ({ channel }: ChannelHeaderProps) => {
   const { getToken, isSignedIn } = useAuth();
-  const [isSubscribed, setIsSubscribed] = useState(false); // TODO: Fetch initial subscription status
+  const queryClient = useQueryClient();
+  const [isSubscribed, setIsSubscribed] = useState(channel.isSubscribed);
   const [subCount, setSubCount] = useState(channel._count.subscribers);
+  const [isLoading, setIsLoading] = useState(false);
 
   const onSubscribe = async () => {
     if (!isSignedIn) {
@@ -36,15 +40,32 @@ export const ChannelHeader = ({ channel }: ChannelHeaderProps) => {
       return;
     }
 
+    setIsLoading(true);
     try {
       const token = await getToken();
-      // TODO: Implement toggle subscription endpoint or use existing one if it exists
-      // For now, just a placeholder UI toggle
-      setIsSubscribed(!isSubscribed);
-      setSubCount(prev => isSubscribed ? prev - 1 : prev + 1);
-      toast.success(isSubscribed ? "Unsubscribed" : "Subscribed!");
+      if (isSubscribed) {
+        await axios.post(`/channels/${channel.id}/unsubscribe`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setIsSubscribed(false);
+        setSubCount(prev => prev - 1);
+        toast.success("Unsubscribed");
+      } else {
+        await axios.post(`/channels/${channel.id}/subscribe`, {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setIsSubscribed(true);
+        setSubCount(prev => prev + 1);
+        toast.success("Subscribed!");
+      }
+      
+      // Invalidate subscriptions query to update sidebar
+      queryClient.invalidateQueries({ queryKey: ["subscriptions"] });
     } catch (error) {
+      console.error("Subscription error:", error);
       toast.error("Something went wrong");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -98,6 +119,7 @@ export const ChannelHeader = ({ channel }: ChannelHeaderProps) => {
         <div className="flex items-end pb-1">
           <Button 
             onClick={onSubscribe}
+            disabled={isLoading}
             className={`rounded-full px-6 py-5 h-auto text-sm font-black transition-all duration-300 shadow-lg active:scale-95 ${
               isSubscribed 
               ? "bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-800 dark:text-white" 

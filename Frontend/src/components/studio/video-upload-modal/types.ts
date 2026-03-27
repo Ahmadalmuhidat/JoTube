@@ -8,7 +8,7 @@ export const videoSchema = z.object({
   videoFile: z.any().optional(),
   thumbnailFile: z.any().optional(),
   categoryIds: z.array(z.string()).min(1, "Please select at least one category"),
-  isPublished: z.boolean(),
+  visibility: z.enum(["PUBLIC", "PRIVATE", "UNLISTED", "DRAFT"]),
 });
 
 export type VideoFormValues = z.infer<typeof videoSchema>;
