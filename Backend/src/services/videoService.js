@@ -109,4 +109,8 @@ export default class VideoService {
     // Actually, let's do a simple check.
     return await this.videoRepository.deleteComment(commentId);
   }
+
+  async getLikedVideos(userId) {
+    return await this.videoRepository.getLikedVideos(userId);
+  }
 }

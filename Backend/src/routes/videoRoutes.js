@@ -22,6 +22,7 @@ const videoController = new VideoController(videoService);
 router.get('/', (req, res) => videoController.feed(req, res));
 router.get('/history', requireAuth, (req, res) => videoController.history(req, res));
 router.get('/watch-later', requireAuth, (req, res) => videoController.getWatchLater(req, res));
+router.get('/liked', requireAuth, (req, res) => videoController.getLikedVideos(req, res));
 router.post('/watch-later/:id/toggle', requireAuth, (req, res) => videoController.toggleWatchLater(req, res));
 router.get('/suggestions/:id', (req, res) => videoController.suggestions(req, res));
 router.get('/search/:query', (req, res) => videoController.search(req, res));

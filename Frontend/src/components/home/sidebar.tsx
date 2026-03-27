@@ -66,7 +66,7 @@ const personalItems = [
   },
   {
     title: "Liked videos",
-    url: "/liked-videos",
+    url: "/liked",
     icon: ThumbsUpIcon
   },
 ];
@@ -135,13 +135,13 @@ export default function HomeSidebar() {
                       }
                     }}
                   >
-                    <a href={item.url} className="flex items-center gap-4">
+                    <Link href={item.url} className="flex items-center gap-4">
                       <item.icon className={cn(
                         "transition-transform duration-300 group-hover:scale-110",
                         pathname === item.url ? "text-red-600 dark:text-red-500" : ""
                       )} />
                       <span className="text-sm font-semibold">{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

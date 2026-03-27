@@ -295,4 +295,22 @@ export default class VideoRepository {
       where: { id }
     });
   }
+
+  async getLikedVideos(userId) {
+    const likes = await prisma.like.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        video: {
+          include: {
+            channel: {
+              include: { user: true }
+            }
+          }
+        }
+      }
+    });
+
+    return likes.map(like => new Video(like.video));
+  }
 }

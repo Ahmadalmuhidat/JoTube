@@ -163,4 +163,17 @@ export default class VideoController {
       res.status(500).json({ message: "Internal server error" });
     }
   }
+
+  async getLikedVideos(req, res) {
+    try {
+      const user = await this._getUser(req);
+      if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+      const videos = await this.videoService.getLikedVideos(user.id);
+      res.status(200).json({ videos });
+    } catch (error) {
+      console.error("Error fetching liked videos:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
 }
