@@ -1,4 +1,5 @@
 import ChannelRepository from '../repositories/channelRepository.js';
+import prisma from '../database/prisma.js';
 
 export default class ChannelService {
   constructor(storageStrategy) {
@@ -11,8 +12,13 @@ export default class ChannelService {
   }
 
   async update(userId, data, imageFile, bannerFile) {
-    const channel = await this.getByUserId(userId);
-    if (!channel) throw new Error('Channel not found');
+    let channel = await this.getByUserId(userId);
+    
+    // If channel doesn't exist, create a default one first
+    if (!channel) {
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      channel = await this.channelRepository.create(userId, data.name || user?.name || "My Channel", data.description || "");
+    }
 
     let imageUrl = channel.imageUrl;
     if (imageFile) {

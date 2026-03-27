@@ -60,31 +60,31 @@ function HistoryContent() {
     <div className="w-full min-h-screen px-4 md:px-8 lg:px-16 py-6 border-l border-slate-200/50 dark:border-slate-800/50">
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 pl-2 gap-4">
         <div>
-            <div className="flex items-center gap-3 mb-2">
-                <History className="size-6 text-red-600" />
-                <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-                    Watch history
-                </h1>
-            </div>
-            <p className="text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mt-3 flex items-center gap-2">
-                <Clock className="size-3" />
-                Your journey through the galaxy
-            </p>
+          <div className="flex items-center gap-3 mb-2">
+            <History className="size-6 text-red-600" />
+            <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+              Watch history
+            </h1>
+          </div>
+          <p className="text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mt-3 flex items-center gap-2">
+            <Clock className="size-3" />
+            Your journey through the galaxy
+          </p>
         </div>
-        
+
         {videos.length > 0 && (
-            <Button variant="outline" size="sm" className="rounded-xl border-slate-200 dark:border-slate-800 font-bold text-xs gap-2 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all">
-                <Trash2 className="size-3.5" />
-                Clear all history
-            </Button>
+          <Button variant="outline" size="sm" className="rounded-xl border-slate-200 dark:border-slate-800 font-bold text-xs gap-2 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all">
+            <Trash2 className="size-3.5" />
+            Clear all history
+          </Button>
         )}
       </div>
 
       {videos.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-            <div className="size-20 bg-slate-100 dark:bg-slate-800 rounded-[2rem] flex items-center justify-center mb-6">
-                <History className="size-10 text-slate-300 dark:text-slate-600" />
-            </div>
+          <div className="size-20 bg-slate-100 dark:bg-slate-800 rounded-[2rem] flex items-center justify-center mb-6">
+            <History className="size-10 text-slate-300 dark:text-slate-600" />
+          </div>
           <h2 className="text-2xl font-black text-slate-900 dark:text-white">Your history is empty</h2>
           <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium max-w-sm">
             Content you watch will appear here. Start exploring to build your history!

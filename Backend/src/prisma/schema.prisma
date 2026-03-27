@@ -50,19 +50,26 @@ model Channel {
   @@index([userId])
 }
 
+enum VideoVisibility {
+  PUBLIC
+  PRIVATE
+  UNLISTED
+  DRAFT
+}
+
 model Video {
-  id           String   @id @default(uuid())
+  id           String          @id @default(uuid())
   title        String
   description  String?
   videoUrl     String
   thumbnailUrl String?
-  viewCount    Int      @default(0)
-  likeCount    Int      @default(0)
-  dislikeCount Int      @default(0)
-  duration     Int      @default(0)
-  isPublished  Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  viewCount    Int             @default(0)
+  likeCount    Int             @default(0)
+  dislikeCount Int             @default(0)
+  duration     Int             @default(0)
+  visibility   VideoVisibility @default(DRAFT)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
 
   // Relationships
   channelId String
@@ -76,10 +83,10 @@ model Video {
   comments Comment[]
 
   // Categories
-  categories VideoCategory[]
+  categories Category[] @relation("VideoToCategory")
 
   // Playlists
-  playlistVideos PlaylistVideo[]
+  playlists Playlist[] @relation("PlaylistToVideo")
 
   // View logs
   views      View[]
@@ -88,8 +95,6 @@ model Video {
   @@index([channelId])
   @@index([createdAt])
 }
-
-// Removed VideoLike in favor of Like model below
 
 model Comment {
   id        String   @id @default(uuid())
@@ -121,52 +126,19 @@ model Playlist {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Videos in playlist
-  videos PlaylistVideo[]
+  videos Video[] @relation("PlaylistToVideo")
 
   @@index([userId])
-}
-
-model PlaylistVideo {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-
-  // Relationships
-  playlistId String
-  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
-
-  videoId String
-  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
-
-  @@unique([playlistId, videoId])
-  @@index([videoId])
 }
 
 model Category {
   id          String   @id @default(uuid())
   name        String
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
   // Relationships
-  videos VideoCategory[]
+  videos Video[] @relation("VideoToCategory")
 
   @@index([name])
-}
-
-model VideoCategory {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-
-  // Relationships
-  videoId String
-  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
-
-  categoryId String
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-  @@unique([videoId, categoryId])
-  @@index([categoryId])
 }
 
 model View {

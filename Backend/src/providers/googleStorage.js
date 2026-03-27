@@ -31,6 +31,15 @@ export default class GoogleStorage {
     
     const bucket = this.storage.bucket(bucketName);
     const file = bucket.file(prefix + fileName);
-    await file.delete();
+    
+    try {
+      await file.delete();
+    } catch (error) {
+      if (error.code === 404) {
+        console.warn(`File not found in storage, skipping deletion: ${prefix + fileName}`);
+      } else {
+        throw error;
+      }
+    }
   }
 }

@@ -54,4 +54,27 @@ export default class StudioRepository {
       }
     });
   }
+
+  async getChannelVideos(userId) {
+    const channel = await prisma.channel.findFirst({
+      where: { userId },
+      select: { id: true }
+    });
+
+    if (!channel) return [];
+
+    return await prisma.video.findMany({
+      where: { channelId: channel.id },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        _count: {
+          select: {
+            comments: true,
+            likes: true,
+            dislikes: true
+          }
+        }
+      }
+    });
+  }
 }

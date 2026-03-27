@@ -12,6 +12,7 @@ class RecommendationRepository {
       return await prisma.video.findMany({
         where: {
           channelId: { in: channelIds },
+          visibility: 'PUBLIC',
           NOT: {
             views: {
               some: { userId }
@@ -44,13 +45,14 @@ class RecommendationRepository {
         }
       }
     });
-    const likedCategoryIds = likedVideos.flatMap(l => l.video.categories.map(c => c.categoryId));
+    const likedCategoryIds = likedVideos.flatMap(l => l.video.categories.map(c => c.id));
     if (likedCategoryIds.length > 0) {
       return await prisma.video.findMany({
         where: {
+          visibility: 'PUBLIC',
           categories: {
             some: {
-              categoryId: { in: likedCategoryIds }
+              id: { in: likedCategoryIds }
             }
           },
           NOT: {
@@ -74,6 +76,7 @@ class RecommendationRepository {
 
   async getTrendingVideos() {
     return await prisma.video.findMany({
+      where: { visibility: 'PUBLIC' },
       take: 10,
       orderBy: {
         views: {
@@ -92,6 +95,7 @@ class RecommendationRepository {
 
   async getRecentVideos() {
     return await prisma.video.findMany({
+      where: { visibility: 'PUBLIC' },
       take: 10,
       orderBy: { createdAt: 'desc' },
       include: {
@@ -109,7 +113,7 @@ class RecommendationRepository {
       where: {
         channelId: channelId,
         id: { not: videoId },
-        isPublished: true
+        visibility: 'PUBLIC'
       },
       take: 20,
       orderBy: { createdAt: 'desc' },

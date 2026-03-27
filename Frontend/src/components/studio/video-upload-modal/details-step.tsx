@@ -11,12 +11,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { GlobeIcon, LockIcon, ChevronRightIcon, Loader2 } from "lucide-react";
+import { GlobeIcon, LockIcon, EyeIcon, ChevronRightIcon, Loader2 } from "lucide-react";
 import { VideoFormValues } from "./types";
 import { ThumbnailField } from "./thumbnail-field";
 import { CategoryField } from "./category-field";
+import { cn } from "@/lib/utils";
 
 interface DetailsStepProps {
   onBack: () => void;
@@ -76,33 +76,53 @@ export function DetailsStep({ onBack, onSubmit, isSaving }: DetailsStepProps) {
           <ThumbnailField />
           <CategoryField />
 
-          <div className="p-5 bg-slate-50 dark:bg-slate-900/50 rounded-[2rem] border border-slate-100 dark:border-slate-800/50 space-y-4">
+          <div className="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-[2.5rem] border border-slate-100 dark:border-slate-800/50 space-y-6">
             <FormField
               control={control}
-              name="isPublished"
+              name="visibility"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-xl">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-sm font-extrabold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                      {field.value ? <GlobeIcon className="size-4 text-green-500" /> : <LockIcon className="size-4 text-slate-400" />}
-                      {field.value ? "Public" : "Private"}
-                    </FormLabel>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">
-                      {field.value ? "Everyone can watch" : "Only you can see this"}
-                    </p>
-                  </div>
+                <FormItem>
+                  <FormLabel className="text-sm font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-widest pl-1">Visibility</FormLabel>
                   <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      className="data-[state=checked]:bg-green-600"
-                    />
+                    <div className="grid grid-cols-1 gap-3">
+                      {[
+                        { value: 'PUBLIC', label: 'Public', icon: GlobeIcon, desc: 'Anyone can watch' },
+                        { value: 'PRIVATE', label: 'Private', icon: LockIcon, desc: 'Only you can see' },
+                        { value: 'UNLISTED', label: 'Unlisted', icon: EyeIcon, desc: 'Anyone with link' },
+                        { value: 'DRAFT', label: 'Draft', icon: Loader2, desc: 'Work in progress' },
+                      ].map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => field.onChange(opt.value)}
+                          className={cn(
+                            "flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-300 text-left group",
+                            field.value === opt.value 
+                              ? "bg-white dark:bg-slate-800 border-red-500 shadow-md ring-4 ring-red-500/5" 
+                              : "bg-white/50 dark:bg-slate-900/30 border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+                          )}
+                        >
+                          <div className={cn(
+                            "p-2.5 rounded-xl transition-colors",
+                            field.value === opt.value ? "bg-red-50 dark:bg-red-900/20 text-red-600" : "bg-slate-100 dark:bg-slate-800 text-slate-500 group-hover:bg-slate-200 dark:group-hover:bg-slate-700"
+                          )}>
+                            <opt.icon className="size-5" />
+                          </div>
+                          <div>
+                            <div className={cn(
+                              "text-sm font-bold",
+                              field.value === opt.value ? "text-slate-900 dark:text-white" : "text-slate-600 dark:text-slate-400"
+                            )}>{opt.label}</div>
+                            <div className="text-[10px] font-bold uppercase tracking-tight text-slate-400">{opt.desc}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
-            
-            <div className="h-px bg-slate-200/60 dark:bg-slate-800/60" />
           </div>
         </div>
       </div>

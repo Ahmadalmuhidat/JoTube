@@ -76,6 +76,14 @@ export default class VideoController {
     return await this.userRepository.findByClerkId(clerkId);
   }
 
+  async upload(req, res) {
+    const user = await this._getUser(req);
+    if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+    const result = await this.videoService.uploadFiles(req.files);
+    res.status(200).json(result);
+  }
+
   async create(req, res) {
     const user = await this._getUser(req);
     if (!user) return res.status(401).json({ message: "Unauthorized" });
@@ -90,8 +98,42 @@ export default class VideoController {
   }
 
   async delete(req, res) {
-    const result = await this.videoService.deleteVideo(req.params.id);
-    res.status(200).json({ message: 'Video deleted successfully' });
+    try {
+      const user = await this._getUser(req);
+      if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+      const videoId = req.params.id;
+      const video = await this.videoService.getVideoById(videoId);
+      if (!video) return res.status(404).json({ message: "Video not found" });
+
+      // Ownership check
+      const channel = await this.channelService.getByUserId(user.id);
+      if (!channel || channel.id !== video.channelId) {
+        return res.status(403).json({ message: "Forbidden: You don't own this video" });
+      }
+
+      await this.videoService.deleteVideo(videoId);
+      res.status(200).json({ message: 'Video deleted successfully' });
+    } catch (error) {
+      console.error("Error deleting video:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  async update(req, res) {
+    try {
+      const user = await this._getUser(req);
+      if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+      const videoId = req.params.id;
+      const updatedVideo = await this.videoService.updateVideo(videoId, user.id, req.body, req.files);
+      res.status(200).json(updatedVideo);
+    } catch (error) {
+      console.error("Error updating video:", error);
+      if (error.message === 'Unauthorized') return res.status(403).json({ message: error.message });
+      if (error.message === 'Video not found') return res.status(404).json({ message: error.message });
+      res.status(500).json({ message: "Internal server error" });
+    }
   }
 
   async view(req, res) {

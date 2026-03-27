@@ -7,7 +7,7 @@ export default class ChannelRepository {
       include: {
         user: true,
         videos: {
-          where: { isPublished: true },
+          where: { visibility: 'PUBLIC' },
           orderBy: { createdAt: 'desc' },
           include: { channel: true }
         },
@@ -109,7 +109,7 @@ export default class ChannelRepository {
     return await prisma.video.findMany({
       where: {
         channelId: { in: channelIds },
-        isPublished: true
+        visibility: 'PUBLIC'
       },
       include: {
         channel: true

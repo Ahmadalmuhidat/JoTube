@@ -7,8 +7,8 @@ export default class SearchRepository {
     return await prisma.video.findMany({
       where: {
         AND: [
-          { isPublished: true },
-          categoryId ? { categories: { some: { categoryId } } } : {},
+          { visibility: 'PUBLIC' },
+          categoryId ? { categories: { some: { id: categoryId } } } : {},
           {
             OR: [
               { title: { contains: query, mode: 'insensitive' } },
