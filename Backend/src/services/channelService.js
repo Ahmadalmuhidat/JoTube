@@ -10,7 +10,7 @@ export default class ChannelService {
     return await this.channelRepository.create(userId, name, description);
   }
 
-  async update(userId, data, imageFile) {
+  async update(userId, data, imageFile, bannerFile) {
     const channel = await this.getByUserId(userId);
     if (!channel) throw new Error('Channel not found');
 
@@ -19,13 +19,23 @@ export default class ChannelService {
       imageUrl = await this.storageStrategy.upload(
         imageFile,
         imageFile.originalname,
-        'jotube/channels'
+        'jotube/channels/avatars'
+      );
+    }
+
+    let bannerUrl = channel.bannerUrl;
+    if (bannerFile) {
+      bannerUrl = await this.storageStrategy.upload(
+        bannerFile,
+        bannerFile.originalname,
+        'jotube/channels/banners'
       );
     }
 
     return await this.channelRepository.update(channel.id, {
       ...data,
-      imageUrl
+      imageUrl,
+      bannerUrl
     });
   }
 

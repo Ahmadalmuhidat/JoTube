@@ -97,12 +97,14 @@ export function VideoCard({ video }: VideoCardProps) {
 
       <div className="flex gap-3 px-1">
         {/* Channel Avatar */}
-        <Avatar className="size-9 ring-2 ring-transparent group-hover:ring-red-500/20 transition-all duration-300">
-          <AvatarImage src={video.channel.imageUrl || video.channel.user?.image} />
-          <AvatarFallback className="bg-slate-100 dark:bg-slate-800 text-[10px] font-bold">
-            {video.channel.name.substring(0, 2).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
+        <Link href={`/channels/${video.channel.id}`}>
+          <Avatar className="size-9 ring-2 ring-transparent group-hover:ring-red-500/20 transition-all duration-300">
+            <AvatarImage src={video.channel.imageUrl || video.channel.user?.image} />
+            <AvatarFallback className="bg-slate-100 dark:bg-slate-800 text-[10px] font-bold">
+              {video.channel.name.substring(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </Link>
 
         <div className="flex flex-col flex-1 min-w-0 gap-1 mt-0.5">
           <div className="flex justify-between items-start gap-3">
@@ -115,12 +117,12 @@ export function VideoCard({ video }: VideoCardProps) {
           </div>
 
           <div className="flex flex-col gap-0.5 mt-0.5">
-            <div className="flex items-center gap-1 group/channel cursor-pointer">
+            <Link href={`/channels/${video.channel.id}`} className="flex items-center gap-1 group/channel cursor-pointer">
               <span className="text-[12px] font-bold text-slate-500 dark:text-slate-400 group-hover/channel:text-slate-900 dark:group-hover/channel:text-white transition-colors">
                 {video.channel.name}
               </span>
               <CheckCircle className="size-3 text-slate-400 fill-slate-400/20" />
-            </div>
+            </Link>
             
             <div className="flex items-center gap-1 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight">
               <span>{video.viewCount} views</span>

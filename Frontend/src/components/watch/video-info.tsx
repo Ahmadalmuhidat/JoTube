@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import axios from "@/config/axios";
 import { toast } from "sonner";
+import Link from "next/link";
 import { ThumbsUp, ThumbsDown, Share2, MoreHorizontal, CheckCircle, Clock, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -24,6 +25,7 @@ interface VideoInfoProps {
     isWatchLater: boolean;
     createdAt: string;
     channel: {
+      id: string;
       name: string;
       imageUrl?: string | null;
       user?: {
@@ -177,18 +179,18 @@ export const VideoInfo = ({ video }: VideoInfoProps) => {
       <div className="mt-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Channel Info */}
         <div className="flex items-center gap-4 group">
-          <div className="relative p-0.5 rounded-full bg-gradient-to-br from-slate-200 to-slate-400 dark:from-slate-700 dark:to-slate-800 shadow-sm group-hover:shadow-md transition-all">
+          <Link href={`/channels/${video.channel.id}`} className="relative p-0.5 rounded-full bg-gradient-to-br from-slate-200 to-slate-400 dark:from-slate-700 dark:to-slate-800 shadow-sm group-hover:shadow-md transition-all">
             <Avatar className="size-10 border-2 border-white dark:border-slate-950">
               <AvatarImage src={video.channel.imageUrl || video.channel.user?.image} />
               <AvatarFallback>{video.channel.name[0]}</AvatarFallback>
             </Avatar>
-          </div>
+          </Link>
           
           <div className="flex flex-col">
-            <div className="flex items-center gap-1">
-                <span className="font-bold text-slate-900 dark:text-white text-base">{video.channel.name}</span>
+            <Link href={`/channels/${video.channel.id}`} className="flex items-center gap-1">
+                <span className="font-bold text-slate-900 dark:text-white text-base hover:text-red-600 transition-colors">{video.channel.name}</span>
                 <CheckCircle className="size-3.5 text-slate-500 fill-slate-500 dark:text-slate-400 dark:fill-slate-400" />
-            </div>
+            </Link>
             <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Verified Channel</span>
           </div>
           

@@ -10,7 +10,7 @@ const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 router.get('/my', requireAuth, (req, res) => ChannelController.getMyChannel(req, res));
-router.patch('/me', requireAuth, upload.single('image'), validate(updateChannelSchema), (req, res) => ChannelController.update(req, res));
+router.patch('/me', requireAuth, upload.fields([{ name: 'image', maxCount: 1 }, { name: 'banner', maxCount: 1 }]), validate(updateChannelSchema), (req, res) => ChannelController.update(req, res));
 router.get('/subscriptions', requireAuth, (req, res) => ChannelController.getSubscribedChannels(req, res));
 router.get('/feed', requireAuth, (req, res) => ChannelController.getSubscriptionFeed(req, res));
 router.get('/:id', (req, res) => ChannelController.getChannelById(req, res));

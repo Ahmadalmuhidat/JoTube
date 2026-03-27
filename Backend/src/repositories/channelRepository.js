@@ -6,6 +6,11 @@ export default class ChannelRepository {
       where: { id },
       include: {
         user: true,
+        videos: {
+          where: { isPublished: true },
+          orderBy: { createdAt: 'desc' },
+          include: { channel: true }
+        },
         _count: {
           select: {
             subscribers: true,
