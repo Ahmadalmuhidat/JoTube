@@ -29,7 +29,6 @@ export default function VideoUploadModal() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | Blob | null>(null);
-  const [uploadedUrls, setUploadedUrls] = useState<{ videoUrl: string, thumbnailUrl: string } | null>(null);
 
   const form = useForm<VideoFormValues>({
     resolver: zodResolver(videoSchema),
@@ -94,22 +93,45 @@ export default function VideoUploadModal() {
       const thumbnailBlob = await res.blob();
       setThumbnailFile(thumbnailBlob);
 
-      // 2. Authentication
+      // Proceed immediately to details step without uploading
+      setIsUploading(false);
+      setStep("details");
+    } catch (error: any) {
+      console.error("Preparation error:", error);
+      toast.error("Failed to prepare video. Please try again.");
+      setIsUploading(false);
+      setStep("upload");
+    }
+  };
+
+  const onSubmit = async (values: VideoFormValues) => {
+    setIsSaving(true);
+    setUploadProgress(0);
+    try {
       const token = await getToken();
-      if (!token) {
-        toast.error("You must be logged in to upload.");
-        setIsUploading(false);
-        setStep("upload");
+      
+      if (!token || !videoFile) {
+        toast.error("Video file missing or you are not logged in. Please try again.");
+        setIsSaving(false);
         return;
       }
-
-      // 3. Multipart Form Data
+      
       const formData = new FormData();
-      formData.append("video", file);
-      formData.append("thumbnail", thumbnailBlob, "thumbnail.jpg");
+      formData.append("title", values.title);
+      if (values.description) formData.append("description", values.description);
+      formData.append("visibility", values.visibility);
+      values.categoryIds.forEach(id => formData.append("categoryIds", id));
+      
+      // Append raw video file
+      formData.append("video", videoFile);
+      
+      if (values.thumbnailFile) {
+        formData.append("thumbnail", values.thumbnailFile);
+      } else if (thumbnailFile) {
+        formData.append("thumbnail", thumbnailFile, "thumbnail.jpg");
+      }
 
-      // 4. Real Upload with Progress Tracking (Upload Only, No DB Record)
-      const response = await axios.post('/videos/upload', formData, {
+      const response = await axios.post('/videos', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data"
@@ -120,53 +142,6 @@ export default function VideoUploadModal() {
           );
           setUploadProgress(percentCompleted);
         }
-      });
-
-      if (response.status === 200) {
-        setUploadedUrls(response.data);
-        setIsUploading(false);
-        setStep("details");
-      }
-    } catch (error: any) {
-      console.error("Upload error:", error);
-      toast.error(error.response?.data?.message || "Upload failed. Please try again.");
-      setIsUploading(false);
-      setStep("upload");
-    }
-  };
-
-  const onSubmit = async (values: VideoFormValues) => {
-    setIsSaving(true);
-    try {
-      const token = await getToken();
-      
-      if (!token || !uploadedUrls?.videoUrl) {
-        toast.error("Video upload not completed. Please try again.");
-        return;
-      }
-      
-      const formData = new FormData();
-      formData.append("title", values.title);
-      if (values.description) formData.append("description", values.description);
-      formData.append("visibility", values.visibility);
-      values.categoryIds.forEach(id => formData.append("categoryIds", id));
-      
-      // Use the videoUrl we got from the upload step
-      formData.append("videoUrl", uploadedUrls.videoUrl);
-      
-      // If a new thumbnail file was manually selected, upload it
-      // Otherwise, use the auto-generated thumbnailUrl from the upload step
-      if (values.thumbnailFile) {
-        formData.append("thumbnail", values.thumbnailFile);
-      } else {
-        formData.append("thumbnailUrl", uploadedUrls.thumbnailUrl);
-      }
-
-      const response = await axios.post('/videos', formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data"
-        },
       });
 
       if (response.status === 201) {
@@ -183,7 +158,6 @@ export default function VideoUploadModal() {
 
   const handleReset = () => {
     setStep("upload");
-    setUploadedUrls(null);
     setVideoFile(null);
     setThumbnailFile(null);
     setUploadProgress(0);
@@ -226,6 +200,7 @@ export default function VideoUploadModal() {
                     onBack={() => setStep("upload")} 
                     onSubmit={onSubmit} 
                     isSaving={isSaving}
+                    uploadProgress={uploadProgress}
                   />
                 )}
 

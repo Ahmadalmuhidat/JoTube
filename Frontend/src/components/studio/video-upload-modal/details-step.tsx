@@ -22,9 +22,10 @@ interface DetailsStepProps {
   onBack: () => void;
   onSubmit: (values: VideoFormValues) => void;
   isSaving?: boolean;
+  uploadProgress?: number;
 }
 
-export function DetailsStep({ onBack, onSubmit, isSaving }: DetailsStepProps) {
+export function DetailsStep({ onBack, onSubmit, isSaving, uploadProgress }: DetailsStepProps) {
   const { control, handleSubmit } = useFormContext<VideoFormValues>();
 
   return (
@@ -146,7 +147,7 @@ export function DetailsStep({ onBack, onSubmit, isSaving }: DetailsStepProps) {
             {isSaving ? (
               <>
                 <Loader2 className="size-4 mr-2 animate-spin" />
-                Saving...
+                {uploadProgress && uploadProgress > 0 ? `Uploading (${uploadProgress}%)...` : 'Saving...'}
               </>
             ) : (
               <>
