@@ -44,16 +44,16 @@ export function CategoryField() {
       name="categoryIds"
       render={({ field }) => (
         <FormItem>
-          <FormLabel className="text-sm font-extrabold text-slate-700 dark:text-slate-200">Categories</FormLabel>
+          <FormLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Categories</FormLabel>
           <div className="flex flex-wrap gap-2 pt-1 relative min-h-[40px]">
             {isLoading ? (
               <div className="flex gap-2 animate-pulse">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-8 w-20 bg-slate-100 dark:bg-slate-800 rounded-xl" />
+                  <div key={i} className="h-8 w-16 bg-slate-100 dark:bg-slate-800 rounded" />
                 ))}
               </div>
             ) : categories.length === 0 ? (
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest py-2">No categories found</p>
+              <p className="text-xs text-slate-400">No categories found</p>
             ) : (
               categories.map((cat) => {
                 const isSelected = field.value?.includes(cat.id);
@@ -62,10 +62,10 @@ export function CategoryField() {
                     key={cat.id}
                     variant={isSelected ? "secondary" : "outline"}
                     className={cn(
-                      "cursor-pointer py-1.5 px-3 rounded-xl font-bold transition-all duration-300 select-none",
+                      "cursor-pointer py-1 px-3 rounded font-medium transition-colors select-none text-xs",
                       isSelected 
-                        ? "bg-red-600 hover:bg-red-700 text-white border-transparent shadow-md shadow-red-600/20" 
-                        : "hover:border-red-600/50 hover:bg-red-50/10 text-slate-500 dark:text-slate-400"
+                        ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border-transparent shadow-none" 
+                        : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800"
                     )}
                     onClick={() => {
                       const newValue = isSelected

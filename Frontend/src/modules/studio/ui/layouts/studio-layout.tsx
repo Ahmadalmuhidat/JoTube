@@ -14,9 +14,9 @@ export function StudioLayout({
     <SidebarProvider>
       <div className="w-full relative min-h-screen bg-white dark:bg-slate-950">
         <StudioNavbar />
-        <div className="flex min-h-screen pt-24 relative z-10 w-full">
+        <div className="flex min-h-screen pt-14 relative z-10 w-full">
           <StudioSidebar />
-          <SidebarInset className="bg-transparent w-full">
+          <SidebarInset className="bg-white dark:bg-slate-950 w-full">
             {children}
           </SidebarInset>
         </div>

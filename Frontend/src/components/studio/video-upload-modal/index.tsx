@@ -166,16 +166,16 @@ export default function VideoUploadModal() {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl border-slate-200/50 dark:border-slate-800/50 rounded-[2rem] shadow-2xl">
+      <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg shadow-xl">
         <div className="flex flex-col h-full">
-          <DialogHeader className="p-6 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-900/50">
+          <DialogHeader className="p-6 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-600 rounded-xl shadow-lg shadow-red-500/20">
+              <div className="p-2 bg-red-600 rounded">
                 <VideoIcon className="size-5 text-white" />
               </div>
               <div>
-                <DialogTitle className="text-xl font-extrabold tracking-tight">Upload Video</DialogTitle>
-                <DialogDescription className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                <DialogTitle className="text-xl font-bold">Upload Video</DialogTitle>
+                <DialogDescription className="text-sm text-slate-500">
                   {step === "upload" ? "Select a video file to share with your audience" : 
                    step === "details" ? "Add some details to help people find your video" : 
                    "Your video is ready to be published!"}

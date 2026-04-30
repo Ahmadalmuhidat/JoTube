@@ -88,10 +88,10 @@ export function EditVideoDialog({ video, open, onOpenChange }: EditVideoDialogPr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] rounded-[2.5rem] p-0 overflow-hidden border-slate-200/60 dark:border-slate-800/60 shadow-2xl">
-        <DialogHeader className="p-8 bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800/50">
-          <DialogTitle className="text-2xl font-black">Edit video details</DialogTitle>
-          <DialogDescription className="text-slate-500 font-medium">Update your video's metadata and visibility settings.</DialogDescription>
+      <DialogContent className="sm:max-w-[600px] rounded-lg p-0 overflow-hidden border border-slate-200 dark:border-slate-800 shadow-lg">
+        <DialogHeader className="p-6 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+          <DialogTitle className="text-xl font-bold">Edit video details</DialogTitle>
+          <DialogDescription className="text-sm text-slate-500">Update your video's metadata and visibility settings.</DialogDescription>
         </DialogHeader>
         
         <Form {...form}>
@@ -101,9 +101,9 @@ export function EditVideoDialog({ video, open, onOpenChange }: EditVideoDialogPr
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-widest pl-1">Title</FormLabel>
+                  <FormLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Title</FormLabel>
                   <FormControl>
-                    <Input {...field} className="h-14 rounded-2xl border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 px-6 font-bold text-lg focus-visible:ring-red-600 transition-all" />
+                    <Input {...field} className="h-10 rounded-md border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 font-medium text-base focus-visible:ring-1 focus-visible:ring-blue-500 transition-colors" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -115,11 +115,11 @@ export function EditVideoDialog({ video, open, onOpenChange }: EditVideoDialogPr
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-widest pl-1">Description</FormLabel>
+                  <FormLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Description</FormLabel>
                   <FormControl>
                     <Textarea 
                       {...field} 
-                      className="min-h-[160px] rounded-2xl border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 p-6 font-medium focus-visible:ring-red-600 resize-none transition-all" 
+                      className="min-h-[120px] rounded-md border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-3 text-sm focus-visible:ring-1 focus-visible:ring-blue-500 resize-none transition-colors" 
                     />
                   </FormControl>
                   <FormMessage />
@@ -132,9 +132,9 @@ export function EditVideoDialog({ video, open, onOpenChange }: EditVideoDialogPr
               name="visibility"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-widest pl-1">Visibility</FormLabel>
+                  <FormLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Visibility</FormLabel>
                   <FormControl>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-2">
                       {[
                         { value: 'PUBLIC', label: 'Public', icon: GlobeIcon },
                         { value: 'PRIVATE', label: 'Private', icon: LockIcon },
@@ -146,20 +146,15 @@ export function EditVideoDialog({ video, open, onOpenChange }: EditVideoDialogPr
                           type="button"
                           onClick={() => field.onChange(opt.value)}
                           className={cn(
-                            "flex items-center gap-3 p-4 rounded-2xl border-2 transition-all duration-300 text-left",
+                            "flex items-center gap-3 p-3 rounded-md border transition-colors text-left",
                             field.value === opt.value 
-                              ? "bg-white dark:bg-slate-800 border-red-500 shadow-sm ring-4 ring-red-500/5" 
-                              : "bg-white/50 dark:bg-slate-900/30 border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+                              ? "bg-slate-50 dark:bg-slate-900 border-blue-500" 
+                              : "bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900"
                           )}
                         >
-                          <div className={cn(
-                            "p-2 rounded-xl",
-                            field.value === opt.value ? "bg-red-50 dark:bg-red-900/20 text-red-600" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
-                          )}>
-                            <opt.icon className="size-4" />
-                          </div>
+                          <opt.icon className={cn("size-4", field.value === opt.value ? "text-blue-500" : "text-slate-500")} />
                           <span className={cn(
-                            "text-sm font-bold",
+                            "text-sm font-medium",
                             field.value === opt.value ? "text-slate-900 dark:text-white" : "text-slate-600 dark:text-slate-400"
                           )}>{opt.label}</span>
                         </button>
@@ -171,11 +166,11 @@ export function EditVideoDialog({ video, open, onOpenChange }: EditVideoDialogPr
               )}
             />
 
-            <DialogFooter className="pt-6 gap-3">
+            <DialogFooter className="pt-4 flex gap-2">
               <Button 
                 type="button" 
                 variant="ghost" 
-                className="rounded-2xl h-12 px-8 font-bold text-slate-500"
+                className="rounded-md font-semibold text-slate-500"
                 onClick={() => onOpenChange(false)}
               >
                 Cancel
@@ -183,10 +178,10 @@ export function EditVideoDialog({ video, open, onOpenChange }: EditVideoDialogPr
               <Button 
                 type="submit" 
                 disabled={mutation.isPending}
-                className="rounded-2xl h-12 px-10 bg-red-600 hover:bg-red-700 text-white font-black shadow-xl shadow-red-600/20 gap-2"
+                className="rounded-md px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold flex gap-2"
               >
                 {mutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <SaveIcon className="size-4" />}
-                Save Changes
+                Save Change
               </Button>
             </DialogFooter>
           </form>

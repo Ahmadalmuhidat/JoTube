@@ -38,14 +38,14 @@ export const ChannelView = ({ channelId }: ChannelViewProps) => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col w-full gap-8 max-w-[1800px] mx-auto animate-pulse">
-        <Skeleton className="w-full aspect-[6/1] md:aspect-[5/1] rounded-3xl bg-slate-200 dark:bg-slate-800" />
+      <div className="flex flex-col w-full max-w-[1800px] mx-auto animate-pulse">
+        <div className="w-full aspect-[6/1] md:aspect-[5/1] bg-slate-200 dark:bg-slate-800" />
         <div className="flex flex-col md:flex-row gap-6 px-4 md:px-8 -mt-6 md:-mt-10 relative z-10 pb-8">
-          <Skeleton className="size-24 md:size-40 rounded-full bg-slate-200 dark:bg-slate-800 border-4 border-white dark:border-slate-950" />
+          <div className="size-24 md:size-40 rounded-full bg-slate-200 dark:bg-slate-800 border-4 border-white dark:border-slate-950" />
           <div className="flex flex-col justify-end gap-3 flex-1 pt-4 md:pt-0">
-             <Skeleton className="h-10 w-64 bg-slate-200 dark:bg-slate-800" />
-             <Skeleton className="h-6 w-32 bg-slate-100 dark:bg-slate-800" />
-             <Skeleton className="h-16 w-full max-w-2xl bg-slate-100 dark:bg-slate-800 mt-2" />
+             <div className="h-10 w-64 bg-slate-200 dark:bg-slate-800 rounded" />
+             <div className="h-6 w-32 bg-slate-100 dark:bg-slate-800 rounded" />
+             <div className="h-16 w-full max-w-2xl bg-slate-100 dark:bg-slate-800 rounded mt-2" />
           </div>
         </div>
       </div>
@@ -55,19 +55,16 @@ export const ChannelView = ({ channelId }: ChannelViewProps) => {
   if (!channel) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <h2 className="text-2xl font-black text-slate-900 dark:text-white">Channel Not Found</h2>
-        <p className="font-bold text-slate-500 uppercase tracking-widest text-sm">We couldn't find the creator you're looking for</p>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">Channel Not Found</h2>
+        <p className="text-sm text-slate-500">We couldn't find the creator you're looking for</p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-transparent relative z-0 transition-all duration-700 animate-in fade-in slide-in-from-bottom-4">
-      <div className="max-w-[1800px] mx-auto w-full px-4 md:px-8 py-6">
+    <div className="flex flex-col w-full min-h-screen bg-transparent relative z-0">
+      <div className="max-w-[1800px] mx-auto w-full">
         <ChannelHeader channel={channel} />
-        
-        <div className="h-px w-full bg-slate-200 dark:bg-slate-800/40 my-10" />
-        
         <ChannelVideos videos={channel.videos || []} />
       </div>
     </div>

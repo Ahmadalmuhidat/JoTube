@@ -38,17 +38,14 @@ export function DetailsStep({ onBack, onSubmit, isSaving, uploadProgress }: Deta
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-extrabold text-slate-700 dark:text-slate-200">Title</FormLabel>
+                <FormLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Title</FormLabel>
                 <FormControl>
                   <Input 
                     placeholder="Add a catchy title" 
-                    className="rounded-xl border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 h-12 font-medium focus-visible:ring-red-600 transition-all" 
+                    className="rounded-md border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 h-10 text-sm focus-visible:ring-1 focus-visible:ring-blue-500" 
                     {...field} 
                   />
                 </FormControl>
-                <FormDescription className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  Tell viewers what your video is about
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -58,11 +55,11 @@ export function DetailsStep({ onBack, onSubmit, isSaving, uploadProgress }: Deta
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-extrabold text-slate-700 dark:text-slate-200">Description</FormLabel>
+                <FormLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Description</FormLabel>
                 <FormControl>
                   <Textarea 
                     placeholder="What's happening in this video?" 
-                    className="min-h-[220px] rounded-2xl border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 resize-none font-medium focus-visible:ring-red-600" 
+                    className="min-h-[160px] rounded-md border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 resize-none text-sm focus-visible:ring-1 focus-visible:ring-blue-500" 
                     {...field} 
                   />
                 </FormControl>
@@ -77,15 +74,15 @@ export function DetailsStep({ onBack, onSubmit, isSaving, uploadProgress }: Deta
           <ThumbnailField />
           <CategoryField />
 
-          <div className="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-[2.5rem] border border-slate-100 dark:border-slate-800/50 space-y-6">
+          <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 space-y-4">
             <FormField
               control={control}
               name="visibility"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-extrabold text-slate-700 dark:text-slate-200 uppercase tracking-widest pl-1">Visibility</FormLabel>
+                  <FormLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Visibility</FormLabel>
                   <FormControl>
-                    <div className="grid grid-cols-1 gap-3">
+                    <div className="grid grid-cols-1 gap-2">
                       {[
                         { value: 'PUBLIC', label: 'Public', icon: GlobeIcon, desc: 'Anyone can watch' },
                         { value: 'PRIVATE', label: 'Private', icon: LockIcon, desc: 'Only you can see' },
@@ -97,24 +94,19 @@ export function DetailsStep({ onBack, onSubmit, isSaving, uploadProgress }: Deta
                           type="button"
                           onClick={() => field.onChange(opt.value)}
                           className={cn(
-                            "flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-300 text-left group",
+                            "flex items-center gap-3 p-3 rounded-md border transition-colors text-left",
                             field.value === opt.value 
-                              ? "bg-white dark:bg-slate-800 border-red-500 shadow-md ring-4 ring-red-500/5" 
-                              : "bg-white/50 dark:bg-slate-900/30 border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+                              ? "bg-white dark:bg-slate-800 border-blue-500" 
+                              : "bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900"
                           )}
                         >
-                          <div className={cn(
-                            "p-2.5 rounded-xl transition-colors",
-                            field.value === opt.value ? "bg-red-50 dark:bg-red-900/20 text-red-600" : "bg-slate-100 dark:bg-slate-800 text-slate-500 group-hover:bg-slate-200 dark:group-hover:bg-slate-700"
-                          )}>
-                            <opt.icon className="size-5" />
-                          </div>
+                          <opt.icon className={cn("size-4", field.value === opt.value ? "text-blue-500" : "text-slate-500")} />
                           <div>
                             <div className={cn(
-                              "text-sm font-bold",
+                              "text-sm font-medium",
                               field.value === opt.value ? "text-slate-900 dark:text-white" : "text-slate-600 dark:text-slate-400"
                             )}>{opt.label}</div>
-                            <div className="text-[10px] font-bold uppercase tracking-tight text-slate-400">{opt.desc}</div>
+                            <div className="text-[10px] text-slate-400">{opt.desc}</div>
                           </div>
                         </button>
                       ))}
@@ -128,12 +120,12 @@ export function DetailsStep({ onBack, onSubmit, isSaving, uploadProgress }: Deta
         </div>
       </div>
 
-      <div className="flex justify-between items-center pt-6 border-t border-slate-100 dark:border-slate-800/50">
-        <div className="flex gap-3">
+      <div className="flex justify-between items-center pt-6 border-t border-slate-200 dark:border-slate-800">
+        <div className="flex gap-2">
           <Button 
             type="button" 
             variant="ghost" 
-            className="rounded-xl font-bold h-11 px-6 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="rounded font-semibold h-10 px-6"
             onClick={onBack}
             disabled={isSaving}
           >
@@ -142,7 +134,7 @@ export function DetailsStep({ onBack, onSubmit, isSaving, uploadProgress }: Deta
           <Button 
             type="submit" 
             disabled={isSaving}
-            className="rounded-xl font-extrabold bg-red-600 hover:bg-red-700 text-white shadow-xl shadow-red-600/20 h-11 px-8 group transition-all"
+            className="rounded font-semibold bg-blue-600 hover:bg-blue-700 text-white h-10 px-8 transition-colors"
           >
             {isSaving ? (
               <>
@@ -152,7 +144,7 @@ export function DetailsStep({ onBack, onSubmit, isSaving, uploadProgress }: Deta
             ) : (
               <>
                 Save & Continue
-                <ChevronRightIcon className="size-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                <ChevronRightIcon className="size-4 ml-2" />
               </>
             )}
           </Button>

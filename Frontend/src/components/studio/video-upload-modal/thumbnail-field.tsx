@@ -23,9 +23,9 @@ export function ThumbnailField() {
 
   return (
     <div className="space-y-3">
-      <FormLabel className="text-sm font-extrabold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+      <FormLabel className="text-sm font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2">
         Thumbnail
-        <Badge variant="outline" className="text-[9px] font-black tracking-tight rounded-md py-0 h-4 border-slate-200 uppercase">Recommended</Badge>
+        <Badge variant="outline" className="text-[10px] font-semibold tracking-tight rounded py-0 h-4 border-slate-200">Recommended</Badge>
       </FormLabel>
       
       <input
@@ -38,7 +38,7 @@ export function ThumbnailField() {
       
       <label 
         htmlFor="thumbnail-upload"
-        className="aspect-video bg-slate-100 dark:bg-slate-900 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center gap-3 group cursor-pointer hover:border-red-600/50 hover:bg-red-50/10 transition-all overflow-hidden relative"
+        className="aspect-video bg-slate-100 dark:bg-slate-900 rounded-md border-2 border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center gap-3 group cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors overflow-hidden relative"
       >
         {thumbnailUrl ? (
           <>
@@ -46,16 +46,16 @@ export function ThumbnailField() {
             <img 
               src={thumbnailUrl} 
               alt="Thumbnail preview" 
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-              <p className="text-white text-[10px] font-black uppercase tracking-widest">Change Image</p>
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <p className="text-white text-xs font-semibold">Change Image</p>
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center gap-2 group-hover:scale-105 transition-transform duration-300">
-            <ImageIcon className="size-8 text-slate-400 group-hover:text-red-600 transition-colors" />
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Upload Image</span>
+          <div className="flex flex-col items-center gap-2">
+            <ImageIcon className="size-8 text-slate-400" />
+            <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Upload Image</span>
           </div>
         )}
       </label>

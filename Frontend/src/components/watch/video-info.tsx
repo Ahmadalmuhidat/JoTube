@@ -183,9 +183,9 @@ export const VideoInfo = ({ video }: VideoInfoProps) => {
       
       <div className="mt-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Channel Info */}
-        <div className="flex items-center gap-4 group">
-          <Link href={`/channels/${video.channel.id}`} className="relative p-0.5 rounded-full bg-gradient-to-br from-slate-200 to-slate-400 dark:from-slate-700 dark:to-slate-800 shadow-sm group-hover:shadow-md transition-all">
-            <Avatar className="size-10 border-2 border-white dark:border-slate-950">
+        <div className="flex items-center gap-4">
+          <Link href={`/channels/${video.channel.id}`}>
+            <Avatar className="size-10">
               <AvatarImage src={video.channel.imageUrl || video.channel.user?.image} />
               <AvatarFallback>{video.channel.name[0]}</AvatarFallback>
             </Avatar>
@@ -193,10 +193,10 @@ export const VideoInfo = ({ video }: VideoInfoProps) => {
           
           <div className="flex flex-col">
             <Link href={`/channels/${video.channel.id}`} className="flex items-center gap-1">
-                <span className="font-bold text-slate-900 dark:text-white text-base hover:text-red-600 transition-colors">{video.channel.name}</span>
-                <CheckCircle className="size-3.5 text-slate-500 fill-slate-500 dark:text-slate-400 dark:fill-slate-400" />
+                <span className="font-bold text-slate-900 dark:text-white text-base">{video.channel.name}</span>
+                <CheckCircle className="size-3.5 text-slate-500" />
             </Link>
-            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Verified Channel</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">Verified Channel</span>
           </div>
           
           {isSignedIn && (
@@ -205,8 +205,8 @@ export const VideoInfo = ({ video }: VideoInfoProps) => {
               disabled={isSubscribing}
               onClick={handleSubscribe}
               className={cn(
-                "ml-4 rounded-full px-6 font-bold transition-all border-none",
-                !isSubscribed && "bg-slate-950 text-white dark:bg-white dark:text-slate-950 hover:opacity-90",
+                "ml-4 rounded-full px-6 font-bold transition-colors",
+                !isSubscribed && "bg-slate-900 text-white dark:bg-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100",
                 isSubscribed && "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white"
               )}
             >
@@ -219,15 +219,15 @@ export const VideoInfo = ({ video }: VideoInfoProps) => {
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 md:pb-0">
            {isSignedIn && (
              <>
-               <div className="flex bg-slate-100 dark:bg-slate-800/80 rounded-full h-10 p-1 border border-slate-200/50 dark:border-slate-700/50">
+               <div className="flex bg-slate-100 dark:bg-slate-800 rounded-full h-10 p-1">
                  <Button 
                    variant="ghost" 
                    size="sm" 
                    disabled={isLiking}
                    onClick={handleLike}
                    className={cn(
-                     "rounded-l-full px-4 flex items-center gap-2 hover:bg-slate-200 dark:hover:bg-slate-700 font-semibold border-r border-slate-200/50 dark:border-slate-700/50",
-                     isLiked && "text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/20"
+                     "rounded-l-full px-4 flex items-center gap-2 hover:bg-slate-200 dark:hover:bg-slate-700 font-semibold border-r border-slate-200 dark:border-slate-700",
+                     isLiked && "text-blue-600 dark:text-blue-400"
                    )}
                  >
                    <ThumbsUp className={cn("size-4", isLiked && "fill-current")} /> {likes}
@@ -239,7 +239,7 @@ export const VideoInfo = ({ video }: VideoInfoProps) => {
                    onClick={handleDislike}
                    className={cn(
                      "rounded-r-full px-4 hover:bg-slate-200 dark:hover:bg-slate-700 font-semibold",
-                     isDisliked && "text-red-600 dark:text-red-400 bg-red-50/50 dark:bg-red-900/20"
+                     isDisliked && "text-red-600 dark:text-red-400"
                    )}
                  >
                    <ThumbsDown className={cn("size-4", isDisliked && "fill-current")} /> {dislikes > 0 && dislikes}
@@ -251,8 +251,8 @@ export const VideoInfo = ({ video }: VideoInfoProps) => {
                  onClick={handleWatchLater}
                  disabled={isTogglingWatchLater}
                  className={cn(
-                   "rounded-full h-10 px-4 flex items-center gap-2 font-semibold bg-slate-100 dark:bg-slate-800/80 border border-slate-200/50 dark:border-slate-700/50 transition-all",
-                   isWatchLater && "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 border-red-200/50 dark:border-red-800/50"
+                   "rounded-full h-10 px-4 flex items-center gap-2 font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors",
+                   isWatchLater && "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400"
                  )}
                >
                  {isWatchLater ? <Check className="size-4" /> : <Clock className="size-4" />}
@@ -261,24 +261,24 @@ export const VideoInfo = ({ video }: VideoInfoProps) => {
              </>
            )}
            
-           <Button variant="secondary" className="rounded-full h-10 px-4 flex items-center gap-2 font-semibold bg-slate-100 dark:bg-slate-800/80 border border-slate-200/50 dark:border-slate-700/50">
+           <Button variant="secondary" className="rounded-full h-10 px-4 flex items-center gap-2 font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700">
              <Share2 className="size-4" /> Share
            </Button>
            
-           <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200/50 dark:border-slate-700/50">
+           <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700">
              <MoreHorizontal className="size-4" />
            </Button>
         </div>
       </div>
       
       {/* Video Description */}
-      <div className="mt-4 p-4 rounded-2xl bg-slate-100 hover:bg-slate-200/60 transition-colors dark:bg-slate-800/80 dark:hover:bg-slate-800/60 backdrop-blur-sm border border-slate-200/20 dark:border-slate-700/20 group/desc">
+      <div className="mt-4 p-4 rounded-lg bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white mb-2">
             <span>{video.viewCount} views</span>
             <span className="text-slate-400">•</span>
             <span>{formatDistanceToNow(new Date(video.createdAt))} ago</span>
           </div>
-          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium whitespace-pre-wrap">
+          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
             {video.description || "No description provided."}
           </p>
       </div>

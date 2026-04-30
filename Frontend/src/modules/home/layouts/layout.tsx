@@ -10,11 +10,11 @@ export default function HomeLayout({
 }) {
   return (
     <SidebarProvider>
-      <div className="w-full relative min-h-screen bg-slate-50 dark:bg-slate-950">
+      <div className="w-full relative min-h-screen bg-white dark:bg-slate-950">
         <HomeNavbar />
-        <div className="flex min-h-screen pt-24 relative z-10 w-full">
+        <div className="flex min-h-screen pt-14 relative z-10 w-full">
           <HomeSidebar />
-          <SidebarInset className="bg-transparent w-full">
+          <SidebarInset className="bg-white dark:bg-slate-950 w-full">
             <Categories />
             {children}
           </SidebarInset>

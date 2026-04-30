@@ -49,19 +49,19 @@ export default function StudioSidebar() {
   const pathname = usePathname();
 
   return (
-    <Sidebar className="pt-24 z-40 border-none bg-transparent" collapsible="icon">
-      <SidebarContent className="bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl border-r border-slate-200/60 dark:border-slate-800/60 shadow-sm rounded-tr-3xl flex flex-col justify-between pb-4">
+    <Sidebar className="pt-14 z-40 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950" collapsible="icon">
+      <SidebarContent className="bg-white dark:bg-slate-950">
         <SidebarGroup className="py-2">
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem className="mb-4">
+              <SidebarMenuItem className="mb-2">
                 <SidebarMenuButton
                   asChild
-                  className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 rounded-xl mx-2 my-0.5"
+                  className="rounded-none px-6 py-5 hover:bg-slate-100 dark:hover:bg-slate-800"
                 >
                   <a href="/" className="flex items-center gap-4 text-slate-500 dark:text-slate-400">
                     <ArrowLeftIcon className="size-5" />
-                    <span className="text-sm font-semibold">Back to JoTube</span>
+                    <span className="text-sm">Back to JoTube</span>
                   </a>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -73,18 +73,18 @@ export default function StudioSidebar() {
                     asChild
                     isActive={pathname === item.url}
                     className={cn(
-                      "transition-all duration-300 rounded-xl mx-2 my-0.5 group",
+                      "rounded-none px-6 py-5 hover:bg-slate-100 dark:hover:bg-slate-800",
                       pathname === item.url 
-                        ? "bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-500 shadow-sm" 
-                        : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200"
+                        ? "bg-slate-100 dark:bg-slate-800 font-bold" 
+                        : "text-slate-700 dark:text-slate-200"
                     )}
                   >
-                    <a href={item.url} className="flex items-center gap-4">
+                    <a href={item.url} className="flex items-center gap-4 w-full">
                       <item.icon className={cn(
-                        "transition-transform duration-300 group-hover:scale-110",
-                        pathname === item.url ? "text-red-600 dark:text-red-500" : ""
+                        "size-5",
+                        pathname === item.url ? "text-red-600" : ""
                       )} />
-                      <span className="text-sm font-semibold">{item.title}</span>
+                      <span className="text-sm">{item.title}</span>
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -93,7 +93,7 @@ export default function StudioSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
+        <SidebarGroup className="py-2 mt-auto">
           <SidebarGroupContent>
             <SidebarMenu>
               {bottomItems.map((item) => (
@@ -101,11 +101,11 @@ export default function StudioSidebar() {
                   <SidebarMenuButton
                     tooltip={item.title}
                     asChild
-                    className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 rounded-xl mx-2 my-0.5 group"
+                    className="rounded-none px-6 py-5 hover:bg-slate-100 dark:hover:bg-slate-800"
                   >
                     <a href={item.url} className="flex items-center gap-4 text-slate-500 dark:text-slate-400">
-                      <item.icon className="transition-transform duration-300 group-hover:scale-110" />
-                      <span className="text-sm font-semibold">{item.title}</span>
+                      <item.icon className="size-5" />
+                      <span className="text-sm">{item.title}</span>
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

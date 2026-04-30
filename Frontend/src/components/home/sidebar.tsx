@@ -89,9 +89,9 @@ export default function HomeSidebar() {
   });
 
   return (
-    <Sidebar className="pt-24 z-40 border-none bg-transparent" collapsible="icon">
-      <SidebarContent className="bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl border-r border-slate-200/60 dark:border-slate-800/60 shadow-sm rounded-tr-3xl">
-        <SidebarGroup className="py-4">
+    <Sidebar className="pt-14 z-40 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950" collapsible="icon">
+      <SidebarContent className="bg-white dark:bg-slate-950">
+        <SidebarGroup className="py-2">
           <SidebarGroupContent>
             <SidebarMenu>
               {mainItems.map((item) => (
@@ -101,18 +101,18 @@ export default function HomeSidebar() {
                     asChild
                     isActive={pathname === item.url}
                     className={cn(
-                      "transition-all duration-300 rounded-xl mx-2 my-0.5 group",
+                      "rounded-none px-6 py-5 hover:bg-slate-100 dark:hover:bg-slate-800",
                       pathname === item.url 
-                        ? "bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-500 shadow-sm" 
-                        : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200"
+                        ? "bg-slate-100 dark:bg-slate-800 font-bold" 
+                        : "text-slate-700 dark:text-slate-200"
                     )}
                   >
-                    <Link href={item.url} className="flex items-center gap-4">
+                    <Link href={item.url} className="flex items-center gap-4 w-full">
                       <item.icon className={cn(
-                        "transition-transform duration-300 group-hover:scale-110",
-                        pathname === item.url ? "text-red-600 dark:text-red-500" : ""
+                        "size-5",
+                        pathname === item.url ? "text-red-600" : ""
                       )} />
-                      <span className="text-sm font-semibold">{item.title}</span>
+                      <span className="text-sm">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -121,11 +121,9 @@ export default function HomeSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         
-        <div className="px-4 py-2">
-          <SidebarSeparator className="bg-slate-200/50 dark:bg-slate-800/50" />
-        </div>
+        <SidebarSeparator className="mx-0 bg-slate-200 dark:bg-slate-800" />
         
-        <SidebarGroup>
+        <SidebarGroup className="py-2">
           <SidebarGroupContent>
             <SidebarMenu>
               {personalItems.map((item) => (
@@ -135,10 +133,10 @@ export default function HomeSidebar() {
                     asChild
                     isActive={pathname === item.url}
                     className={cn(
-                      "transition-all duration-300 rounded-xl mx-2 my-0.5 group",
+                      "rounded-none px-6 py-5 hover:bg-slate-100 dark:hover:bg-slate-800",
                       pathname === item.url 
-                        ? "bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-500 shadow-sm" 
-                        : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200"
+                        ? "bg-slate-100 dark:bg-slate-800 font-bold" 
+                        : "text-slate-700 dark:text-slate-200"
                     )}
                     onClick={(e) => {
                       if (!isSignedIn) {
@@ -147,12 +145,12 @@ export default function HomeSidebar() {
                       }
                     }}
                   >
-                    <Link href={item.url} className="flex items-center gap-4">
+                    <Link href={item.url} className="flex items-center gap-4 w-full">
                       <item.icon className={cn(
-                        "transition-transform duration-300 group-hover:scale-110",
-                        pathname === item.url ? "text-red-600 dark:text-red-500" : ""
+                        "size-5",
+                        pathname === item.url ? "text-red-600" : ""
                       )} />
-                      <span className="text-sm font-semibold">{item.title}</span>
+                      <span className="text-sm">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -163,12 +161,10 @@ export default function HomeSidebar() {
 
         {isSignedIn && subscriptions.length > 0 && (
           <>
-            <div className="px-4 py-2">
-              <SidebarSeparator className="bg-slate-200/50 dark:bg-slate-800/50" />
-            </div>
-            <SidebarGroup>
+            <SidebarSeparator className="mx-0 bg-slate-200 dark:bg-slate-800" />
+            <SidebarGroup className="py-2">
               <div className="px-6 py-2">
-                <h3 className="text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Subscriptions</h3>
+                <h3 className="text-xs font-semibold text-slate-500 uppercase">Subscriptions</h3>
               </div>
               <SidebarGroupContent>
                 <SidebarMenu>
@@ -177,14 +173,14 @@ export default function HomeSidebar() {
                       <SidebarMenuButton
                         tooltip={channel.name}
                         asChild
-                        className="transition-all duration-300 rounded-xl mx-2 my-0.5 hover:bg-slate-100 dark:hover:bg-slate-800 group"
+                        className="rounded-none px-6 py-5 hover:bg-slate-100 dark:hover:bg-slate-800"
                       >
-                        <Link href={`/channels/${channel.id}`} className="flex items-center gap-4">
-                          <Avatar className="size-6 border border-slate-200 dark:border-slate-800 transition-transform group-hover:scale-110">
+                        <Link href={`/channels/${channel.id}`} className="flex items-center gap-4 w-full">
+                          <Avatar className="size-6">
                             <AvatarImage src={channel.imageUrl || channel.user?.image} />
-                            <AvatarFallback className="text-[8px] font-black">{channel.name[0]}</AvatarFallback>
+                            <AvatarFallback>{channel.name[0]}</AvatarFallback>
                           </Avatar>
-                          <span className="text-sm font-semibold truncate">{channel.name}</span>
+                          <span className="text-sm truncate">{channel.name}</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -194,13 +190,11 @@ export default function HomeSidebar() {
                     <SidebarMenuItem>
                       <SidebarMenuButton
                         asChild
-                        className="transition-all duration-300 rounded-xl mx-2 my-0.5 hover:bg-slate-100 dark:hover:bg-slate-800"
+                        className="rounded-none px-6 py-5 hover:bg-slate-100 dark:hover:bg-slate-800"
                       >
-                        <Link href="/subscriptions" className="flex items-center gap-4 px-1">
-                          <div className="size-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                            <ChevronDownIcon className="size-4 text-slate-500" />
-                          </div>
-                          <span className="text-sm font-semibold">View all</span>
+                        <Link href="/subscriptions" className="flex items-center gap-4">
+                          <ChevronDownIcon className="size-4 text-slate-500" />
+                          <span className="text-sm">Show more</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>

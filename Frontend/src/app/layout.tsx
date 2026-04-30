@@ -11,7 +11,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "JoTube",
-  description: "Modern Video Platform",
+  description: "Classic Video Platform",
 };
 
 export default function RootLayout({

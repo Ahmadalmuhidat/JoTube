@@ -59,26 +59,20 @@ export function VideoCard({ video }: VideoCardProps) {
       setIsToggling(false);
     }
   };
+
   return (
-    <div className="group flex flex-col gap-3 cursor-pointer">
+    <div className="group flex flex-col gap-2 cursor-pointer">
       {/* Thumbnail */}
-      <Link href={`/watch/${video.id}`} className="relative aspect-video w-full bg-slate-200 dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm group-hover:shadow-2xl group-hover:-translate-y-1.5 transition-all duration-500 block">
+      <Link href={`/watch/${video.id}`} className="relative aspect-video w-full bg-slate-200 dark:bg-slate-800 rounded-lg overflow-hidden block">
         <img 
           src={video.thumbnailUrl || "/placeholder-thumbnail.jpg"} 
           alt={video.title}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          className="w-full h-full object-cover"
           onError={(e) => {
             (e.target as HTMLImageElement).src = "https://placehold.co/1280x720/1e293b/white?text=JoTube";
           }}
         />
         
-        {/* Play overlay */}
-        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-             <div className="size-14 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-xl scale-75 group-hover:scale-100 transition-transform duration-500">
-                <div className="w-0 h-0 border-t-[10px] border-t-transparent border-l-[16px] border-l-white border-b-[10px] border-b-transparent ml-1.5" />
-             </div>
-        </div>
-
         {/* Watch Later Button */}
         <Button
           onClick={toggleWatchLater}
@@ -86,47 +80,47 @@ export function VideoCard({ video }: VideoCardProps) {
           variant="secondary"
           size="icon"
           className={cn(
-            "absolute top-2 right-2 size-8 rounded-lg bg-black/60 hover:bg-black/80 border-none text-white opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-md scale-90 group-hover:scale-100",
+            "absolute top-1.5 right-1.5 size-7 rounded-md bg-black/70 hover:bg-black/90 border-none text-white opacity-0 group-hover:opacity-100 transition-opacity",
             isWatchLater && "bg-red-600 hover:bg-red-700 opacity-100"
           )}
           title={isWatchLater ? "Added to Watch Later" : "Watch Later"}
         >
-          {isWatchLater ? <Check className="size-4" /> : <Clock className="size-4" />}
+          {isWatchLater ? <Check className="size-3.5" /> : <Clock className="size-3.5" />}
         </Button>
       </Link>
 
-      <div className="flex gap-3 px-1">
+      <div className="flex gap-2">
         {/* Channel Avatar */}
-        <Link href={`/channels/${video.channel.id}`}>
-          <Avatar className="size-9 ring-2 ring-transparent group-hover:ring-red-500/20 transition-all duration-300">
+        <Link href={`/channels/${video.channel.id}`} className="flex-shrink-0 pt-1">
+          <Avatar className="size-8">
             <AvatarImage src={video.channel.imageUrl || video.channel.user?.image} />
-            <AvatarFallback className="bg-slate-100 dark:bg-slate-800 text-[10px] font-bold">
+            <AvatarFallback className="bg-slate-100 dark:bg-slate-800 text-[10px]">
               {video.channel.name.substring(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
         </Link>
 
-        <div className="flex flex-col flex-1 min-w-0 gap-1 mt-0.5">
-          <div className="flex justify-between items-start gap-3">
-            <h3 className="text-[17px] font-extrabold text-slate-900 dark:text-white line-clamp-2 leading-[1.2] group-hover:text-red-600 dark:group-hover:text-red-500 transition-colors duration-300">
+        <div className="flex flex-col flex-1 min-w-0">
+          <div className="flex justify-between items-start gap-1">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white line-clamp-2 leading-tight">
               {video.title}
             </h3>
-            <Button variant="ghost" size="icon" className="size-8 -mr-1.5 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
-              <MoreVertical className="size-4 text-slate-400" />
+            <Button variant="ghost" size="icon" className="size-8 -mr-2 flex-shrink-0 opacity-0 group-hover:opacity-100 rounded-full">
+              <MoreVertical className="size-4 text-slate-500" />
             </Button>
           </div>
 
-          <div className="flex flex-col gap-0.5 mt-0.5">
-            <Link href={`/channels/${video.channel.id}`} className="flex items-center gap-1 group/channel cursor-pointer">
-              <span className="text-[12px] font-bold text-slate-500 dark:text-slate-400 group-hover/channel:text-slate-900 dark:group-hover/channel:text-white transition-colors">
+          <div className="flex flex-col mt-1">
+            <Link href={`/channels/${video.channel.id}`} className="flex items-center gap-1">
+              <span className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
                 {video.channel.name}
               </span>
-              <CheckCircle className="size-3 text-slate-400 fill-slate-400/20" />
+              <CheckCircle className="size-3 text-slate-400" />
             </Link>
             
-            <div className="flex items-center gap-1 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight">
+            <div className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400">
               <span>{video.viewCount} views</span>
-              <span className="text-[8px] opacity-30">•</span>
+              <span>•</span>
               <span>{formatDistanceToNow(new Date(video.createdAt))} ago</span>
             </div>
           </div>
