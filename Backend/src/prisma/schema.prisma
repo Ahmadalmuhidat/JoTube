@@ -57,19 +57,20 @@ enum VideoVisibility {
   DRAFT
 }
 
+
 model Video {
-  id           String          @id @default(uuid())
-  title        String
-  description  String?
-  videoUrl     String
-  thumbnailUrl String?
-  viewCount    Int             @default(0)
-  likeCount    Int             @default(0)
-  dislikeCount Int             @default(0)
-  duration     Int             @default(0)
-  visibility   VideoVisibility @default(DRAFT)
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  id               String          @id @default(uuid())
+  title            String
+  description      String?
+  videoUrl         String
+  thumbnailUrl     String?
+  viewCount        Int             @default(0)
+  likeCount        Int             @default(0)
+  dislikeCount     Int             @default(0)
+  duration         Int             @default(0)
+  visibility       VideoVisibility @default(DRAFT)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 
   // Relationships
   channelId String

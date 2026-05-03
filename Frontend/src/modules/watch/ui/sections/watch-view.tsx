@@ -47,8 +47,12 @@ export const WatchView = ({ videoId }: WatchViewProps) => {
     <div className="flex flex-col lg:flex-row gap-8 px-4 sm:px-8 lg:px-12 py-6 max-w-[1800px] mx-auto">
       {/* Main Content (Left) */}
       <div className="flex-1 w-full lg:max-w-[calc(100%-420px)] xl:max-w-[calc(100%-450px)]">
-        <div className="relative group/player rounded-lg overflow-hidden shadow-md">
-          <VideoPlayer videoUrl={video?.videoUrl} thumbnailUrl={video?.thumbnailUrl} videoId={video?.id} />
+        <div className="relative group/player rounded-2xl overflow-hidden shadow-[0_32px_64px_-12px_rgba(0,0,0,0.14)] dark:shadow-[0_32px_64px_-12px_rgba(0,0,0,0.4)] transition-all hover:translate-y-[-4px] duration-500">
+          <VideoPlayer 
+            videoUrl={video?.videoUrl} 
+            thumbnailUrl={video?.thumbnailUrl} 
+            videoId={video?.id} 
+          />
         </div>
         <div className="space-y-6">
           <VideoInfo video={video} />

@@ -28,4 +28,16 @@ export default class StorageStrategy {
 
     return await this.storage.delete(name, bucket);
   }
+
+  async getSignedUrl(fullUrl, expiresIn) {
+    if (!this.storage) {
+      throw new Error('Storage provider not initialized');
+    }
+
+    if (typeof this.storage.getSignedUrl !== 'function') {
+      return fullUrl; // Fallback if provider doesn't support signing
+    }
+
+    return await this.storage.getSignedUrl(fullUrl, expiresIn);
+  }
 }

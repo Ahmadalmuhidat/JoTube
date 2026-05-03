@@ -74,15 +74,16 @@ class RecommendationRepository {
     return [];
   }
 
-  async getTrendingVideos() {
-    return await prisma.video.findMany({
+  async getTrendingVideos({ cursor, limit = 12 } = {}) {
+    const videosData = await prisma.video.findMany({
       where: { visibility: 'PUBLIC' },
-      take: 10,
-      orderBy: {
-        views: {
-          _count: 'desc'
-        }
-      },
+      take: limit + 1,
+      cursor: cursor ? { id: cursor } : undefined,
+      skip: cursor ? 1 : 0,
+      orderBy: [
+        { views: { _count: 'desc' } },
+        { id: 'asc' }
+      ],
       include: {
         channel: {
           include: {
@@ -91,13 +92,26 @@ class RecommendationRepository {
         }
       }
     });
+
+    let nextCursor = undefined;
+    if (videosData.length > limit) {
+      const nextItem = videosData.pop();
+      nextCursor = nextItem.id;
+    }
+
+    return { videos: videosData, nextCursor };
   }
 
-  async getRecentVideos() {
-    return await prisma.video.findMany({
+  async getRecentVideos({ cursor, limit = 12 } = {}) {
+    const videosData = await prisma.video.findMany({
       where: { visibility: 'PUBLIC' },
-      take: 10,
-      orderBy: { createdAt: 'desc' },
+      take: limit + 1,
+      cursor: cursor ? { id: cursor } : undefined,
+      skip: cursor ? 1 : 0,
+      orderBy: [
+        { createdAt: 'desc' },
+        { id: 'asc' }
+      ],
       include: {
         channel: {
           include: {
@@ -106,6 +120,14 @@ class RecommendationRepository {
         }
       }
     });
+
+    let nextCursor = undefined;
+    if (videosData.length > limit) {
+      const nextItem = videosData.pop();
+      nextCursor = nextItem.id;
+    }
+
+    return { videos: videosData, nextCursor };
   }
 
   async suggestions(videoId, channelId) {

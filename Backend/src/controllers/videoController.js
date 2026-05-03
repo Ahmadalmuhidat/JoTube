@@ -15,18 +15,27 @@ export default class VideoController {
     this.videoService = new VideoService(storageStrategy);
     this.channelService = new ChannelService();
     this.userRepository = new UserRepository();
-    this.recommendationService = new RecommendationService();
+    this.recommendationService = new RecommendationService(this.videoService);
   }
 
   async feed(req, res) {
     const user = await this._getUser(req);
-    const videos = await this.recommendationService.getRecommendations(user?.id);
-    res.status(200).json({ videos });
+    const { cursor, limit } = req.query;
+    const result = await this.recommendationService.getRecommendations(user?.id, {
+      cursor,
+      limit: limit ? parseInt(limit) : 12
+    });
+    res.status(200).json(result);
   }
 
   async search(req, res) {
-    const videos = await this.videoService.search(req.params.query);
-    res.status(200).json({ videos });
+    const { cursor, limit, sortBy } = req.query;
+    const result = await this.videoService.search(req.params.query, {
+      cursor,
+      limit: limit ? parseInt(limit) : 12,
+      sortBy: sortBy || 'latest'
+    });
+    res.status(200).json(result);
   }
 
   async history(req, res) {

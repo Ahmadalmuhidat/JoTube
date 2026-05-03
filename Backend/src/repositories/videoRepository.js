@@ -2,18 +2,28 @@ import prisma from '../database/prisma.js';
 import Video from '../entities/video.js';
 
 export default class VideoRepository {
-  async search(query) {
+  async search(query, { cursor, limit = 12, sortBy = 'latest' } = {}) {
+    // Determine primary sort order
+    const orderBy = sortBy === 'views' ? { viewCount: 'desc' } : { createdAt: 'desc' };
+    
     const videosData = await prisma.video.findMany({
       where: {
         visibility: 'PUBLIC',
         ...(query ? {
           OR: [
-            { title: { contains: query } },
-            { description: { contains: query } },
-            { channel: { name: { contains: query } } }
+            { title: { contains: query, mode: 'insensitive' } },
+            { description: { contains: query, mode: 'insensitive' } },
+            { channel: { name: { contains: query, mode: 'insensitive' } } }
           ]
         } : {})
       },
+      take: limit + 1,
+      cursor: cursor ? { id: cursor } : undefined,
+      skip: cursor ? 1 : 0,
+      orderBy: [
+        orderBy,
+        { id: 'asc' } // Secondary sort for stable pagination
+      ],
       include: {
         channel: {
           include: {
@@ -22,7 +32,17 @@ export default class VideoRepository {
         }
       }
     });
-    return videosData.map(videoData => new Video(videoData));
+
+    let nextCursor = undefined;
+    if (videosData.length > limit) {
+      const nextItem = videosData.pop();
+      nextCursor = nextItem.id;
+    }
+
+    return {
+      videos: videosData.map(videoData => new Video(videoData)),
+      nextCursor
+    };
   }
 
   async create(body) {
@@ -176,16 +196,19 @@ export default class VideoRepository {
   async view(videoId, userId) {
     await prisma.$transaction(async (tx) => {
       if (userId) {
+        // Check if the user has already viewed this video
         const existingView = await tx.view.findUnique({
           where: { userId_videoId: { userId, videoId } }
         });
 
+        // Update the view count if the user has already viewed this video
         await tx.view.upsert({
           where: { userId_videoId: { userId, videoId } },
           update: { createdAt: new Date() },
           create: { videoId, userId }
         });
 
+        // If the user has not viewed this video before, increment the view count
         if (!existingView) {
           await tx.video.update({
             where: { id: videoId },

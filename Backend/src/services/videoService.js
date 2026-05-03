@@ -1,5 +1,6 @@
 import VideoRepository from '../repositories/videoRepository.js';
 
+
 export default class VideoService {
   constructor(storageStrategy) {
     this.videoRepository = new VideoRepository();
@@ -7,11 +8,18 @@ export default class VideoService {
   }
 
   async search(query) {
-    return await this.videoRepository.search(query);
+    const videos = await this.videoRepository.search(query);
+    return await this._prepareMultiple(videos);
   }
 
   async getHistory(userId) {
-    return await this.videoRepository.getHistory(userId);
+    const history = await this.videoRepository.getHistory(userId);
+    // history is an array of view objects with video inside
+    const preparedHistory = await Promise.all(history.map(async (h) => ({
+      ...h,
+      video: await this._prepareVideo(h.video)
+    })));
+    return preparedHistory;
   }
 
   async toggleWatchLater(videoId, userId) {
@@ -19,11 +27,17 @@ export default class VideoService {
   }
 
   async getWatchLater(userId) {
-    return await this.videoRepository.getWatchLater(userId);
+    const items = await this.videoRepository.getWatchLater(userId);
+    const preparedItems = await Promise.all(items.map(async (item) => ({
+      ...item,
+      video: await this._prepareVideo(item.video)
+    })));
+    return preparedItems;
   }
 
   async getVideoById(id, userId = null) {
-    return await this.videoRepository.findById(id, userId);
+    const video = await this.videoRepository.findById(id, userId);
+    return await this._prepareVideo(video);
   }
 
   async uploadFiles(files) {
@@ -60,12 +74,16 @@ export default class VideoService {
       if (uploaded.thumbnailUrl) thumbnailUrl = uploaded.thumbnailUrl;
     }
 
-    return await this.videoRepository.create({
+    const newVideo = await this.videoRepository.create({
       ...data,
       videoUrl,
       thumbnailUrl,
       channelId: data.channelId,
     });
+
+
+
+    return newVideo;
   }
 
   async deleteVideo(id) {
@@ -155,6 +173,28 @@ export default class VideoService {
   }
 
   async getLikedVideos(userId) {
-    return await this.videoRepository.getLikedVideos(userId);
+    const videos = await this.videoRepository.getLikedVideos(userId);
+    return await this._prepareMultiple(videos);
+  }
+
+  // Helper methods for signing
+  async _prepareVideo(video) {
+    if (!video) return null;
+    
+    const [signedVideoUrl, signedThumbnailUrl] = await Promise.all([
+      this.storageStrategy.getSignedUrl(video.videoUrl),
+      this.storageStrategy.getSignedUrl(video.thumbnailUrl)
+    ]);
+
+    return {
+      ...video,
+      videoUrl: signedVideoUrl,
+      thumbnailUrl: signedThumbnailUrl
+    };
+  }
+
+  async _prepareMultiple(videos) {
+    if (!videos) return [];
+    return await Promise.all(videos.map(v => this._prepareVideo(v)));
   }
 }
